@@ -1,0 +1,822 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Notfall auf ZETA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: bunter Nachthimmel mit Planeten im Hintergrund, darauf weiße "Comic-Karten"; BIT begleitet jedes Deck mit Sprechblasen; Sticker als Belohnung */
+:root{
+  color-scheme: light;
+  --sky1:#26286f; --sky2:#5b3db3; --card:#ffffff; --card2:#f1f4ff; --ink:#23264d; --muted:#626893; --line:#d8ddf4;
+  --sun:#ffc93c; --sun-dark:#e3a215; --coral:#ff6f61; --coral-dark:#d94c3f; --mint:#2fc58f; --mint-dark:#1f9a6e; --sky:#4aa3ff; --grape:#8b6cf6;
+  --okbg:#e2f8ee; --badbg:#ffeae7; --space:#1b1d55;
+  --display:'Fredoka','Comic Sans MS','Trebuchet MS',system-ui,sans-serif;
+  --body:'Lexend','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:linear-gradient(170deg,var(--sky1) 0%,var(--sky2) 100%) fixed; color:var(--ink); font-family:var(--body); font-size:18px; line-height:1.6; min-height:100%}
+.bgdeco{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
+.bgdeco svg{width:100%; height:100%}
+.wrap{position:relative; z-index:1; max-width:840px; margin:0 auto; padding-block:16px 56px;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); display:flex; flex-direction:column; gap:16px}
+
+.bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--card); border-radius:999px; padding:8px 10px 8px 18px; box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.stars{display:flex; gap:4px; align-items:center}
+.stars svg{width:26px; height:26px}
+.energy{font-family:var(--display); font-weight:600; font-size:18px; display:flex; align-items:center; gap:6px; font-variant-numeric:tabular-nums}
+.energy svg{width:22px; height:22px}
+.speak{display:inline-flex; align-items:center; gap:6px; background:var(--card2); color:var(--ink); border:0; border-radius:999px; padding:8px 14px; font-family:var(--display); font-weight:600; font-size:16px; cursor:pointer}
+.speak:hover{background:#e3e9ff}
+.speak svg{width:20px; height:20px; fill:currentColor}
+
+.panel{background:var(--card); border-radius:28px; padding:26px 22px; display:flex; flex-direction:column; gap:18px; box-shadow:0 8px 0 rgba(0,0,0,.18)}
+.pill{align-self:flex-start; font-family:var(--display); font-weight:600; font-size:15px; color:#fff; background:var(--deck,var(--grape)); border-radius:999px; padding:3px 14px}
+h1,h2,h3{font-family:var(--display); font-weight:700; line-height:1.12; margin:0; text-wrap:balance; color:var(--ink)}
+h1{font-size:clamp(38px,9vw,60px)} h2{font-size:clamp(28px,6vw,38px)} h3{font-size:23px}
+p{margin:0; max-width:64ch}
+.cap{font-size:15px; color:var(--muted)}
+
+input[type=text]{font:inherit; font-size:20px; padding:10px 14px; border-radius:14px; border:3px solid var(--line); background:#fff; color:var(--ink); width:100%; max-width:340px}
+input[type=text]:focus{outline:none; border-color:var(--sky)}
+input.gap{width:9.5em; display:inline-block; margin:3px 4px; padding:5px 10px; font-size:18px}
+input.ok{border-color:var(--mint); background:var(--okbg)} input.bad{border-color:var(--coral); background:var(--badbg)}
+
+.btn{font-family:var(--display); font-weight:700; font-size:20px; background:var(--sun); color:var(--ink); border:0; border-radius:16px; padding:11px 24px;
+  box-shadow:0 5px 0 var(--sun-dark); cursor:pointer; transition:transform .08s, box-shadow .08s}
+.btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 var(--sun-dark)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.sm{font-size:17px; padding:8px 18px}
+.btn.mint{background:var(--mint); color:#fff; box-shadow:0 5px 0 var(--mint-dark)}
+.btn.coral{background:var(--coral); color:#fff; box-shadow:0 5px 0 var(--coral-dark)}
+.btn.ghost{background:var(--card2); color:var(--ink); box-shadow:0 4px 0 var(--line); font-size:16px; padding:8px 16px}
+.btn.ghost[aria-pressed="true"]{background:#fff3c9; box-shadow:0 4px 0 var(--sun-dark)}
+.btn.big{font-size:24px; padding:14px 30px}
+.btn .ic{width:30px; height:30px; vertical-align:middle; margin-right:6px}
+.self{align-self:flex-start}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:4px solid var(--sky); outline-offset:3px}
+.btnrow{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+
+.opt{font:inherit; font-size:17px; text-align:left; background:#fff; color:var(--ink); border:3px solid var(--line); border-radius:16px; padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:12px}
+.opt:hover:not(:disabled){border-color:var(--sky)}
+.opt[aria-pressed="true"]{border-color:var(--sky); background:#e8f3ff}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--mint); background:var(--okbg)}
+.opt.bad{border-color:var(--coral); background:var(--badbg); opacity:.7}
+.opt .oi{flex:0 0 54px; width:54px; height:54px}
+.picgrid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px}
+@media (max-width:560px){ .picgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.picgrid .opt{flex-direction:column; text-align:center; font-family:var(--display); font-weight:600; font-size:18px; padding:12px 8px}
+.picgrid .opt .oi{width:76px; height:76px; flex-basis:auto}
+.stack{display:flex; flex-direction:column; gap:10px}
+
+.qcard{position:relative; border:3px solid var(--line); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:12px; background:var(--card2)}
+.qcard.ok{border-color:var(--mint); background:#f3fcf8} .qcard.bad{border-color:#f5b7b0}
+.qhead{display:flex; justify-content:space-between; gap:10px; align-items:center}
+.qnum{font-family:var(--display); font-weight:600; font-size:15px; color:#fff; background:var(--deck,var(--grape)); border-radius:999px; padding:2px 12px}
+.pts{font-family:var(--display); font-weight:600; font-size:15px; color:var(--muted); white-space:nowrap; display:flex; gap:4px; align-items:center}
+.pts svg{width:18px; height:18px}
+.qbody{display:flex; gap:14px; align-items:center}
+.qbody .qimg{flex:0 0 96px; width:96px; height:96px; background:#fff; border-radius:18px; padding:6px}
+.qbody .qtext{min-width:0; flex:1; display:flex; flex-direction:column; gap:10px}
+@media (max-width:480px){ .qbody{flex-direction:column; align-items:flex-start} }
+.prompt{font-weight:500}
+.status{font-family:var(--display); font-weight:600; font-size:19px}
+.status.good{color:var(--mint-dark)} .status.wrong{color:var(--coral-dark); font-family:var(--body); font-weight:500; font-size:16px} .status.try{color:#b07a00}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{font-family:var(--display); font-weight:600; font-size:17px; background:#fff; color:var(--ink); border:3px dashed var(--grape); border-radius:999px; padding:3px 14px; cursor:pointer}
+.chip:hover{border-style:solid; background:#f2edff}
+
+.say{display:flex; gap:12px; align-items:flex-end}
+.say .bot{flex:0 0 78px; width:78px; height:78px}
+.say.small .bot{flex-basis:58px; width:58px; height:58px}
+.bubble{position:relative; background:#eef3ff; border:3px solid #c9d5ff; border-radius:20px; padding:10px 14px; min-width:0; display:flex; flex-direction:column; gap:8px}
+.bubble::before{content:""; position:absolute; left:-13px; bottom:16px; border:10px solid transparent; border-right-color:#c9d5ff}
+.bubble::after{content:""; position:absolute; left:-8px; bottom:18px; border:8px solid transparent; border-right-color:#eef3ff}
+.bubble b.n{font-family:var(--display); color:var(--grape)}
+
+.scene{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:16px; align-items:center}
+@media (max-width:620px){ .scene{grid-template-columns:1fr} }
+.art{background:var(--space); border-radius:22px; overflow:hidden; border:4px solid #fff; box-shadow:0 0 0 3px var(--line)}
+.art svg{display:block; width:100%; height:auto}
+.diagram{overflow-x:auto; background:#fbfcff; border:3px solid var(--line); border-radius:20px; padding:8px}
+.diagram svg{display:block; width:100%; min-width:520px; height:auto}
+.st{fill:#fff; stroke:#5b6894; stroke-width:3}
+.st.hi{stroke:var(--sun-dark); stroke-width:4; fill:#fff3c9}
+.st.seen{stroke:var(--mint); fill:#effbf5}
+.stt{fill:var(--ink); font-family:var(--display); font-weight:700; font-size:17px; text-anchor:middle; dominant-baseline:central; pointer-events:none}
+.edge{fill:none; stroke:#7c86b0; stroke-width:2.5}
+.edge.hi{stroke:var(--sun-dark); stroke-width:3.5}
+.ahp{fill:#7c86b0} .ahp.hi{fill:var(--sun-dark)}
+.lab{fill:var(--ink); font-family:var(--body); font-weight:500; font-size:14px; text-anchor:middle; dominant-baseline:central; paint-order:stroke; stroke:#fbfcff; stroke-width:7px; stroke-linejoin:round; pointer-events:none}
+.badge circle{fill:var(--coral)} .badge text{fill:#fff; font-family:var(--display); font-weight:700; font-size:15px; text-anchor:middle; dominant-baseline:central}
+
+.log{width:100%; border-collapse:collapse; font-size:15px; font-variant-numeric:tabular-nums}
+.log th{text-align:left; font-family:var(--display); font-weight:600; color:var(--muted); font-size:14px; border-bottom:2px solid var(--line); padding:6px 4px}
+.log td{padding:5px 4px; border-bottom:1px solid var(--line)}
+.logwrap{max-height:240px; overflow:auto; border:3px solid var(--line); border-radius:16px; padding:4px 10px; background:#fff}
+.msg{min-height:1.6em; font-family:var(--display); font-weight:600; font-size:20px; color:var(--grape)}
+
+.duo{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; align-items:start}
+@media (max-width:680px){ .duo{grid-template-columns:1fr} }
+.bp{background:#1650a8; border-radius:20px; overflow:hidden; border:4px solid #fff; box-shadow:0 0 0 3px var(--line)}
+.bp svg{display:block; width:100%; height:auto; touch-action:manipulation}
+.node{cursor:pointer}
+.node circle.ring{fill:#1f63c7; stroke:#bfe0ff; stroke-width:3}
+.node:hover circle.ring{stroke:#fff}
+.node.from circle.ring{stroke:var(--sun); stroke-width:5}
+.node.start circle.ring{fill:#2a74de}
+.bpt{fill:#fff; font-family:var(--display); font-weight:700; font-size:22px; text-anchor:middle; dominant-baseline:central; pointer-events:none}
+.bpedge{fill:none; stroke:var(--sun); stroke-width:3.5}
+.bplab{fill:#fff; font-family:var(--display); font-weight:600; font-size:16px; text-anchor:middle; dominant-baseline:central; paint-order:stroke; stroke:#1650a8; stroke-width:8px; stroke-linejoin:round}
+.arrows{display:flex; flex-direction:column; gap:6px}
+.arrowitem{display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--card2); border-radius:12px; padding:6px 12px; font-size:16px}
+.x{font-family:var(--display); font-weight:600; background:#fff; color:var(--coral-dark); border:2px solid var(--coral); border-radius:10px; padding:0 10px; cursor:pointer}
+.checklist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; font-size:16px; font-weight:500}
+.checklist li.y{color:var(--mint-dark)} .checklist li.n{color:var(--coral-dark)}
+
+.reward{display:flex; gap:16px; align-items:center; background:linear-gradient(135deg,#fff7d6,#ffe9f3); border:3px solid var(--sun); border-radius:22px; padding:14px 16px}
+.reward svg{flex:0 0 96px; width:96px; height:96px}
+.reward .rt{min-width:0; display:flex; flex-direction:column; gap:4px}
+.stickers{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+@media (max-width:520px){ .stickers{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.sticker{display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--card2); border-radius:18px; padding:10px; text-align:center}
+.sticker svg{width:84px; height:84px}
+.sticker b{font-family:var(--display); font-size:16px}
+.sticker span{font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
+.big{font-family:var(--display); font-size:clamp(52px,14vw,88px); font-weight:700; line-height:1; color:var(--grape); font-variant-numeric:tabular-nums}
+
+.confetti{position:absolute; left:50%; top:40px; width:0; height:0; pointer-events:none}
+.confetti i{position:absolute; width:10px; height:14px; border-radius:3px; animation:conf 1s ease-out forwards}
+@keyframes conf{from{transform:translate(0,0) rotate(0); opacity:1} to{transform:translate(var(--dx),var(--dy)) rotate(var(--r)); opacity:0}}
+.pop{animation:pop .4s ease-out} @keyframes pop{0%{transform:scale(.7)} 60%{transform:scale(1.12)} 100%{transform:scale(1)}}
+.bob{animation:bob 2.4s ease-in-out infinite} @keyframes bob{50%{transform:translateY(-6px)}}
+.wave{animation:wave 1.2s ease-in-out infinite; transform-origin:62px 58px} @keyframes wave{50%{transform:rotate(-25deg)}}
+.twinkle{animation:tw 2.6s ease-in-out infinite} @keyframes tw{50%{opacity:.3}}
+.wiggle{animation:wig .5s ease-in-out 2; transform-origin:150px 150px} @keyframes wig{25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+.dance{animation:dan .35s ease-in-out 5; transform-origin:150px 160px} @keyframes dan{25%{transform:rotate(-14deg) translateY(-6px)}75%{transform:rotate(14deg) translateY(-6px)}}
+.fly{animation:fly 1s ease-out forwards} @keyframes fly{to{transform:translate(110px,40px) rotate(200deg); opacity:0}}
+.descend{animation:desc 3s ease-out forwards} @keyframes desc{from{transform:translateY(-120px)} to{transform:translateY(0)}}
+.streak{animation:streak 2.5s linear infinite} @keyframes streak{0%{transform:translate(-60px,-40px); opacity:0} 20%{opacity:1} 100%{transform:translate(120px,80px); opacity:0}}
+@media (prefers-reduced-motion:reduce){ .bob,.wave,.twinkle,.wiggle,.dance,.fly,.descend,.streak,.pop{animation:none} .confetti{display:none} }
+</style>
+
+<div class="bgdeco" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+  <g fill="#fff"><circle class="twinkle" cx="80" cy="120" r="2.5"/><circle cx="220" cy="60" r="1.6"/><circle class="twinkle" cx="900" cy="90" r="2.2"/><circle cx="760" cy="200" r="1.5"/><circle class="twinkle" cx="60" cy="520" r="2"/><circle cx="950" cy="480" r="1.8"/><circle cx="140" cy="860" r="2"/><circle class="twinkle" cx="880" cy="900" r="2.5"/><circle cx="520" cy="40" r="1.5"/><circle cx="40" cy="300" r="1.4"/><circle cx="970" cy="700" r="1.6"/></g>
+  <circle cx="930" cy="300" r="70" fill="#ff8fa3"/><circle cx="905" cy="280" r="14" fill="#ff6f8a" opacity=".6"/><circle cx="950" cy="330" r="9" fill="#ff6f8a" opacity=".6"/>
+  <circle cx="70" cy="720" r="55" fill="#ffc93c"/><ellipse cx="70" cy="720" rx="95" ry="18" fill="none" stroke="#ffe08a" stroke-width="7" transform="rotate(-18 70 720)"/>
+  <circle cx="860" cy="820" r="32" fill="#4aa3ff"/><circle cx="160" cy="200" r="22" fill="#2fc58f"/></svg></div>
+
+<div class="wrap">
+  <div class="bar" id="bar"></div>
+  <main class="panel" id="app" tabindex="-1" aria-live="polite"></main>
+</div>
+
+<script>
+/* ================= Hilfsfunktionen ================= */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function norm(s){ return String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+  .replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m; let prev=[...Array(n+1).keys()];
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++) cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); prev=cur; } return prev[n]; }
+function fuzzyEq(a,b){ const tol=b.length<=4?0:b.length<=7?1:2; return lev(a,b)<=tol; }
+function matchText(input, answers, opt={}){
+  let n=norm(input).replace(/^(der|die|das|ein|eine|einen|im) /,''); if(!n) return false;
+  const toks=n.split(' ');
+  if(opt.not && opt.not.some(w=>toks.includes(norm(w)))) return false;
+  if(answers.some(a=>fuzzyEq(n,norm(a)))) return true;
+  if(opt.keyword) return answers.some(a=>{ const na=norm(a); return n.includes(na) || toks.some(t=>fuzzyEq(t,na)); });
+  return false;
+}
+function money(s){ const t=String(s).toLowerCase().replace(/\s+/g,' ').trim(); if(!t) return null;
+  if(/^(null|nichts|leer)/.test(t)) return 0;
+  let m=t.match(/(\d+)\s*(?:euro|€|eur)\s*(\d+)/); if(m) return (+m[1])*100+(+m[2]);
+  const num=parseFloat(t.replace(',','.').replace(/[^0-9.]/g,'')); if(isNaN(num)) return null;
+  if(/ct|cent/.test(t)) return Math.round(num);
+  if(/euro|€|eur|[.,]/.test(t)) return Math.round(num*100);
+  return num>=10 ? Math.round(num) : Math.round(num*100);
+}
+const isPress = l => matchText(l, ['druecken','drucken','schalter','knopf','taste','klick','klicken','tippen','umlegen','drueck','betaetigen'], {keyword:true});
+
+/* ================= Speichern (nur auf diesem Gerät) ================= */
+const TEACHER_CODE = '2026';   /* Code für die Ergebnisliste – hier ändern */
+const KEY='zeta-spielstand-v1', RKEY='zeta-ergebnisse-v1';
+const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+let SAVED = store.get(KEY);
+let teacher = {code:'', ok:false, wrong:false, confirmDel:false};
+function save(){ if(S.screen!=='intro' && S.screen!=='results') store.set(KEY, S); }
+function recordResult(){ if(S.recorded) return; S.recorded=true;
+  const list=store.get(RKEY)||[]; const now=new Date();
+  list.push({name:S.name||'ohne Namen', date:now.toLocaleDateString('de-DE')+' '+now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),
+    total:total(), max:MAXTOTAL, decks:DECKS.map((_,i)=>deckScore(i)), hints:S.hints, second:S.second});
+  store.set(RKEY, list); }
+const DNAME = {d1:'Deck 1',d2:'Deck 2',d3:'Deck 3',d4:'Deck 4',d5:'Deck 5',d6:'Deck 6',end:'Ziel erreicht'};
+
+/* ================= Spielzustand ================= */
+const DECKS = ['Sternenkarte','Kantine','Labor','Funkraum','Maschinenraum','Kapsel'];
+const DCOL = ['#8b6cf6','#ff6f61','#2fc58f','#4aa3ff','#e3a215','#d94c8a'];
+const STICK = ['Sternen-Navigator','Kantinen-Held','Blubb-Forscher','Funk-Profi','Saft-Meister','Kapsel-Pilot'];
+const ORDER = ['intro','d1','d2','d3','d4','d5','d6','end'];
+const S = { name:'', screen:'intro', q:{}, hints:0, second:0, lastGap:{}, justOk:'', recorded:false,
+  d1:{at:'Kepler', log:[], found:false}, d3:{state:0, log:[], anim:'idle'}, d5:{state:0, juice:0, log:[], msg:''},
+  d6:{start:'', arrows:[], tool:'', from:'', to:'', label:'', sim:'', simMsg:''} };
+
+/* ================= Aufgaben ================= */
+const Q = {
+ r1:{deck:0, type:'route', pts:2, img:'route', prompt:'Welcher Weg ist der kürzeste von Kepler nach ZETA? Schreibe die Buchstaben der Sprungtore der Reihe nach auf, zum Beispiel BAB.',
+   ans:'ABA', solution:'A, B, A (Kepler → Nebula → Eisriese → ZETA)', hint:{text:'Schau auf die Sternenkarte. Starte beim Startpfeil (Kepler) und folge den Pfeilen bis zum doppelten Kreis. Der kürzeste Weg braucht genau 3 Sprünge.'}},
+ r2:{deck:0, type:'choice', pts:2, img:'planet', prompt:'Die Sternenkarte ist ein Zustandsdiagramm. Was sind die Planeten in der Informatik?',
+   options:['Eingaben','Zustände','Ausgaben'], correct:1, hint:{text:'Dein Shuttle ist immer an genau einem Planeten. Ein Automat ist immer in genau einem …'}},
+ r3:{deck:0, type:'choice', pts:2, img:'flag', prompt:'ZETA ist das Ziel und hat einen doppelten Kreis. Wie heißt so ein Zustand?',
+   options:['Startzustand','Übergang','Endzustand'], correct:2, hint:{text:'Wenn du ZETA erreichst, ist die Reise zu Ende.'}},
+ k1:{deck:1, type:'gap', pts:2, img:'inout', prompt:'Ein Automat ist eine Maschine, die selbstständig arbeitet. Er bekommt eine ___ und erzeugt eine ___.',
+   gaps:[['Eingabe'],['Ausgabe']], solution:'Eingabe, Ausgabe', hint:{text:'Was du hineingibst, und was herauskommt. Tippe auf ein Wort, um es einzusetzen.', chips:['Eingabe','Ausgabe','Zustand']}},
+ k2:{deck:1, type:'text', keyword:true, pts:2, img:'pfand', prompt:'Pfandautomat: Du steckst eine leere Flasche hinein. Was ist die Ausgabe?',
+   answers:['bon','pfandbon','zettel','beleg','quittung','gutschein','pfand','geld','kassenbon','pfandzettel','pfandgeld'], solution:'ein Pfandbon (Zettel mit dem Pfandgeld)',
+   hint:{text:'Was bekommst du im Supermarkt, wenn du Flaschen zurückgibst? Du gibst ihn danach an der Kasse ab.', chips:['Pfandbon','Flasche','Kassierer']}},
+ k3:{deck:1, type:'text', keyword:true, pts:2, img:'ticket', prompt:'Fahrkartenautomat: Am Ende bekommst du eine Fahrkarte. Nenne eine Eingabe.',
+   answers:['geld','muenze','muenzen','bezahlen','zahlen','karte','ziel','knopf','taste','schein','euro','druecken','bankkarte','ec','tippen','bildschirm','haltestelle'],
+   not:['fahrkarte','ticket'], solution:'zum Beispiel Geld einwerfen oder das Ziel antippen',
+   hint:{text:'Was machst du am Automaten, bevor die Fahrkarte herauskommt?', chips:['Geld einwerfen','Fahrkarte','Bahnsteig']}},
+ k4:{deck:1, type:'choice', pts:2, pics:true, prompt:'Welches Ding ist kein Automat?',
+   options:[{t:'Ampel',ic:'ampel'},{t:'Aufzug',ic:'aufzug'},{t:'Kopfkissen',ic:'kissen'},{t:'Pfandautomat',ic:'pfand'}], correct:2, hint:{text:'Ein Automat reagiert von selbst auf eine Eingabe, zum Beispiel auf einen Knopfdruck.'}},
+ b1:{deck:2, type:'choice', pts:2, img:'blubbq', prompt:'Du gibst Blubb einen Sternkeks. Manchmal kaut er, manchmal spuckt er ihn aus. Warum?',
+   options:['Blubb entscheidet zufällig.','Blubb merkt sich, wie viele Kekse er schon gegessen hat.','Manche Kekse sind kaputt.'], correct:1,
+   hint:{text:'Schau in deine Forschertabelle. Passiert immer dasselbe, wenn du gleich oft gefüttert hast?'}},
+ b2:{deck:2, type:'text', pts:2, img:'brain', prompt:'Das, was sich ein Automat gerade merkt, heißt …', answers:['zustand','zustaende','zustände'], solution:'Zustand',
+   hint:{text:'Blubb kann hungrig, halb satt oder satt sein. Das ist sein …', chips:['Eingabe','Zustand','Ausgabe']}},
+ b3:{deck:2, type:'choice', pts:2, pics:true, prompt:'Blubb ist hungrig. Du gibst ihm drei Sternkekse hintereinander. Was macht er beim dritten Keks?',
+   options:[{t:'Er kaut den Keks.',ic:'bchew'},{t:'Er spuckt den Keks aus.',ic:'bspit'},{t:'Er tanzt.',ic:'bdance'}], correct:1,
+   hint:{text:'Nach zwei Keksen ist Blubb satt. Probiere es aus: Spiel Musik, bis er wieder Hunger hat, und füttere ihn dann dreimal.'}},
+ b4:{deck:2, type:'text', pts:2, img:'count', prompt:'Wie viele Zustände hat Blubb? Schreibe eine Zahl.', answers:['3','drei'], solution:'3 (hungrig, halb satt, satt)',
+   hint:{text:'Zähle, wie oft sich Blubbs Reaktion auf einen Keks ändert. Der Anfang zählt mit.'}},
+ f1:{deck:3, type:'text', pts:2, prompt:'Nummer 1 zeigt auf einen Kreis. Wie heißt ein Kreis im Zustandsdiagramm?', answers:['zustand'], solution:'Zustand',
+   hint:{text:'Der Kreis zeigt, was sich der Automat gerade merkt.', chips:['Zustand','Übergang','Eingabe','Startzustand','Ausgabe']}},
+ f2:{deck:3, type:'text', pts:2, prompt:'Nummer 2 zeigt auf einen Pfeil von einem Kreis zum anderen. Wie heißt so ein Pfeil?', answers:['uebergang','ubergang','uebergaenge'], solution:'Übergang',
+   hint:{text:'Der Pfeil zeigt, wie der Automat in einen anderen Zustand übergeht.', chips:['Zustand','Übergang','Eingabe','Startzustand','Ausgabe']}},
+ f3:{deck:3, type:'text', pts:2, prompt:'Nummer 3 zeigt auf das Wort „Münze“ am Pfeil. Was steht immer an einem Pfeil?', answers:['eingabe','eingaben'], solution:'die Eingabe',
+   hint:{text:'Die Münze steckst du in die Schleuse hinein.', chips:['Zustand','Übergang','Eingabe','Startzustand','Ausgabe']}},
+ f4:{deck:3, type:'text', pts:2, prompt:'Nummer 4 ist der kleine Pfeil von links. Der Kreis, auf den er zeigt, ist der …', answers:['startzustand','start zustand','start'], solution:'Startzustand',
+   hint:{text:'In diesem Zustand beginnt der Automat.', chips:['Zustand','Übergang','Eingabe','Startzustand','Endzustand']}},
+ f5:{deck:3, type:'choice', pts:2, img:'gate', prompt:'Die Schleuse ist im Zustand „zu“. Jemand geht durch, ohne eine Münze einzuwerfen. Was passiert?',
+   options:['Die Schleuse geht auf.','Die Schleuse bleibt zu.','Die Schleuse geht kaputt.'], correct:1,
+   hint:{text:'Suche den Pfeil mit „Durchgehen“, der beim Zustand „zu“ startet. Wo endet er?'}},
+ m1:{deck:4, type:'money', pts:2, img:'startflag', prompt:'In welchem Zustand startet der Saft-Automat?', ans:0, solution:'0 ct',
+   hint:{text:'Suche den Pfeil mit dem Wort „Start“.'}},
+ m2:{deck:4, type:'money', pts:2, img:'coins', prompt:'Der Automat ist bei 0 ct. Du wirfst erst 50 ct und dann 1 € ein. In welchem Zustand ist er jetzt?', ans:150, solution:'1,50 €',
+   hint:{text:'Lege den Finger auf „0 ct“. Folge zuerst dem Pfeil „50 ct“ und dann dem Pfeil „1 €“. Du kannst es auch am Automaten oben ausprobieren.'}},
+ m3:{deck:4, type:'choice', pts:2, img:'coin100', prompt:'Der Automat ist im Zustand „1 €“. Du wirfst noch eine 1-€-Münze ein. Was passiert?',
+   options:['Er geht in den Zustand „1,50 €“.','Die Münze fällt wieder heraus. Der Zustand bleibt „1 €“.','Ein Astro-Saft kommt heraus.'], correct:1,
+   hint:{text:'Gibt es beim Zustand „1 €“ einen Pfeil mit „1 €“? Wenn es keinen Pfeil gibt, ändert sich nichts.'}},
+ c1:{deck:5, type:'builder', pts:6},
+ c2:{deck:5, type:'gap', pts:2, img:'bulb', prompt:'Erkläre deinen Automaten: Wenn der Lichtschalter im Zustand „aus“ ist und ich ___, dann ist er im Zustand ___.',
+   gaps:[['schalter druecken','den schalter druecke','druecke','den schalter drucke','auf den schalter druecke','knopf druecke','schalter drucke'],['an']], keywordGaps:[true,true], notGaps:[[],['aus']],
+   solution:'den Schalter drücke · an', hint:{text:'Schau auf deinen Bauplan: Welche Eingabe steht am Pfeil, der bei „aus“ startet? Wo endet er?', chips:['den Schalter drücke','an','aus']}}
+};
+const deckQ = i => Object.keys(Q).filter(k=>Q[k].deck===i);
+const qs = id => S.q[id] || (S.q[id] = {tries:0, done:false, earned:0, hint:false, val: Q[id].type==='gap'?[]:'', wrong:[], correct:false});
+const deckScore = i => deckQ(i).reduce((a,k)=>a+(S.q[k]?.earned||0),0);
+const deckMax = i => deckQ(i).reduce((a,k)=>a+Q[k].pts,0);
+const total = () => DECKS.reduce((a,_,i)=>a+deckScore(i),0);
+const MAXTOTAL = DECKS.reduce((a,_,i)=>a+deckMax(i),0);
+const deckAllDone = i => deckQ(i).every(k=>S.q[k]?.done);
+const optText = o => typeof o==='string' ? o : o.t;
+
+function evalQ(id){
+  const q=Q[id], v=qs(id).val;
+  if(q.type==='route') return String(v).toUpperCase().replace(/[^AB]/g,'')===q.ans;
+  if(q.type==='money') return money(v)===q.ans;
+  if(q.type==='text') return matchText(v, q.answers, {keyword:q.keyword, not:q.not});
+  if(q.type==='gap') return q.gaps.every((g,k)=>matchText(v[k]||'', g, {keyword:q.keywordGaps?.[k], not:q.notGaps?.[k]}));
+  if(q.type==='choice') return v===q.correct;
+}
+function check(id){
+  const q=Q[id], st=qs(id); if(st.done) return;
+  if(q.type==='choice'){ if(st.val===''||st.val==null) return; }
+  else if(q.type==='gap'){ if(q.gaps.some((g,k)=>!String(st.val[k]||'').trim())) return; }
+  else if(!String(st.val).trim()) return;
+  if(evalQ(id)){ st.done=true; st.correct=true; st.earned = st.tries===0 ? q.pts : Math.ceil(q.pts/2); S.justOk=id; }
+  else {
+    if(q.type==='choice') st.wrong.push(st.val);
+    st.tries++;
+    if(st.tries===1){ st.hint=true; S.second++; } else { st.done=true; st.earned=0; }
+  }
+  render();
+}
+
+/* ================= Bilder ================= */
+function bit(mood='happy'){
+  const eyes = mood==='think' ? '<path d="M38,50 q6,-5 12,0" stroke="#23264d" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="76" cy="50" r="6" fill="#23264d"/>'
+    : mood==='cheer' ? '<path d="M37,52 q7,-9 14,0 M69,52 q7,-9 14,0" stroke="#23264d" stroke-width="4" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="44" cy="50" r="7" fill="#23264d"/><circle cx="76" cy="50" r="7" fill="#23264d"/><circle cx="46" cy="47" r="2.5" fill="#fff"/><circle cx="78" cy="47" r="2.5" fill="#fff"/>';
+  const mouth = mood==='think' ? '<path d="M50,72 h20" stroke="#23264d" stroke-width="4" stroke-linecap="round"/>'
+    : mood==='cheer' ? '<path d="M44,66 q16,20 32,0 z" fill="#ff6f61" stroke="#23264d" stroke-width="3" stroke-linejoin="round"/>'
+    : '<path d="M46,68 q14,12 28,0" stroke="#23264d" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  const armR = mood==='cheer'||mood==='wave' ? `<g class="${mood==='wave'?'wave':''}"><path d="M100,70 q16,-14 14,-34" stroke="#8a98d6" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="114" cy="34" r="7" fill="#ffc93c"/></g>`
+    : '<path d="M100,74 q12,8 10,22" stroke="#8a98d6" stroke-width="7" fill="none" stroke-linecap="round"/>';
+  const armL = mood==='cheer' ? '<path d="M20,70 q-16,-14 -14,-34" stroke="#8a98d6" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="6" cy="34" r="7" fill="#ffc93c"/>'
+    : mood==='think' ? '<path d="M20,76 q-8,-6 8,-10" stroke="#8a98d6" stroke-width="7" fill="none" stroke-linecap="round"/>'
+    : '<path d="M20,74 q-12,8 -10,22" stroke="#8a98d6" stroke-width="7" fill="none" stroke-linecap="round"/>';
+  return `<svg class="bot" viewBox="-6 0 132 130" aria-hidden="true">${bitG(mood,eyes,mouth,armL,armR)}</svg>`;
+}
+function bitG(mood,eyes,mouth,armL,armR){
+  return `<g class="bob">
+    <line x1="60" y1="8" x2="60" y2="22" stroke="#8a98d6" stroke-width="4"/><circle cx="60" cy="8" r="7" fill="#ff6f61"/>
+    ${armL}${armR}
+    <rect x="18" y="22" width="84" height="70" rx="26" fill="#dfe6ff" stroke="#8a98d6" stroke-width="4"/>
+    <rect x="28" y="34" width="64" height="48" rx="18" fill="#bfe9ff"/>${eyes}${mouth}
+    <circle cx="34" cy="64" r="5" fill="#ffb3c1" opacity=".8"/><circle cx="86" cy="64" r="5" fill="#ffb3c1" opacity=".8"/>
+    <rect x="38" y="94" width="44" height="24" rx="10" fill="#dfe6ff" stroke="#8a98d6" stroke-width="4"/><circle cx="60" cy="106" r="5" fill="#2fc58f"/>
+    ${mood==='think'?'<text x="104" y="22" font-family="Fredoka" font-weight="700" font-size="24" fill="#8b6cf6">?</text>':''}</g>`;
+}
+function bitInner(mood){ const m=bit(mood); return m.slice(m.indexOf('>')+1, m.lastIndexOf('</svg>')); }
+const say = (mood, html, small) => `<div class="say ${small?'small':''}">${bit(mood)}<div class="bubble"><span><b class="n">BIT:</b> ${html}</span></div></div>`;
+const sayChips = (mood, html, chipsHtml) => `<div class="say small">${bit(mood)}<div class="bubble"><span><b class="n">BIT:</b> ${html}</span>${chipsHtml}</div></div>`;
+const starIcon = (fill, stroke='#e3a215') => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" fill="${fill}" stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const bolt = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#ffc93c" stroke="#e3a215" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+
+const ICON = {
+ ampel:`<svg class="oi" viewBox="0 0 80 80"><rect x="28" y="6" width="24" height="56" rx="8" fill="#3b3f6b"/><circle cx="40" cy="18" r="7" fill="#ff6f61"/><circle cx="40" cy="34" r="7" fill="#ffc93c"/><circle cx="40" cy="50" r="7" fill="#2fc58f"/><rect x="37" y="62" width="6" height="14" fill="#7c86b0"/></svg>`,
+ aufzug:`<svg class="oi" viewBox="0 0 80 80"><rect x="14" y="8" width="52" height="66" rx="6" fill="#c9d3f2"/><rect x="20" y="20" width="19" height="50" fill="#7c86b0"/><rect x="41" y="20" width="19" height="50" fill="#7c86b0"/><path d="M33,15 l7,-6 l7,6z" fill="#2fc58f"/><circle cx="64" cy="44" r="0"/></svg>`,
+ kissen:`<svg class="oi" viewBox="0 0 80 80"><path d="M10,30 Q8,18 22,20 Q40,14 58,20 Q72,18 70,30 Q74,44 70,56 Q72,66 58,62 Q40,68 22,62 Q8,66 10,56 Q6,44 10,30z" fill="#ffd1dc" stroke="#ff9db4" stroke-width="3"/><path d="M18,28 Q40,24 62,28 M18,56 Q40,60 62,56" stroke="#ff9db4" stroke-width="2" fill="none" stroke-dasharray="3 4"/><text x="56" y="16" font-family="Fredoka" font-weight="700" font-size="14" fill="#8b6cf6">Zzz</text></svg>`,
+ pfand:`<svg viewBox="0 0 80 80"><rect x="18" y="6" width="44" height="70" rx="6" fill="#4aa3ff"/><rect x="26" y="14" width="28" height="14" rx="3" fill="#e8f3ff"/><circle cx="40" cy="44" r="9" fill="#23264d"/><rect x="28" y="60" width="24" height="7" rx="2" fill="#fff"/><path d="M4,38 h8 l2,-6 h4 l2,6 h8 v8 h-24z" fill="#2fc58f" transform="rotate(-25 16 40)"/></svg>`,
+ ticket:`<svg viewBox="0 0 80 80"><rect x="16" y="4" width="48" height="72" rx="8" fill="#ff6f61"/><rect x="24" y="12" width="32" height="22" rx="4" fill="#fff3c9"/><text x="40" y="24" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="9" fill="#23264d">ZIEL?</text><circle cx="30" cy="44" r="4" fill="#fff"/><circle cx="40" cy="44" r="4" fill="#fff"/><circle cx="50" cy="44" r="4" fill="#fff"/><rect x="26" y="56" width="28" height="6" rx="2" fill="#23264d"/><rect x="30" y="60" width="20" height="16" rx="2" fill="#fff" transform="rotate(8 40 66)"/></svg>`,
+ route:`<svg viewBox="0 0 80 80"><path d="M14,64 C20,30 40,60 50,30 S66,16 68,14" stroke="#8b6cf6" stroke-width="4" fill="none" stroke-dasharray="6 6" stroke-linecap="round"/><circle cx="14" cy="64" r="9" fill="#4aa3ff"/><circle cx="50" cy="32" r="7" fill="#ff8fa3"/><path d="M62,6 v18 M62,6 l14,5 l-14,5" stroke="#23264d" stroke-width="3" fill="#ffc93c" stroke-linejoin="round"/></svg>`,
+ planet:`<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="22" fill="#b08cff"/><ellipse cx="40" cy="40" rx="36" ry="9" fill="none" stroke="#ffc93c" stroke-width="5" transform="rotate(-15 40 40)"/><circle cx="33" cy="33" r="5" fill="#d0b5ff"/></svg>`,
+ flag:`<svg viewBox="0 0 80 80"><circle cx="40" cy="44" r="28" fill="none" stroke="#5b6894" stroke-width="4"/><circle cx="40" cy="44" r="21" fill="#fff3c9" stroke="#5b6894" stroke-width="4"/><path d="M40,8 v34 M40,8 l18,7 l-18,7" stroke="#23264d" stroke-width="3" fill="#2fc58f" stroke-linejoin="round"/></svg>`,
+ inout:`<svg viewBox="0 0 80 80"><rect x="24" y="16" width="32" height="48" rx="8" fill="#8b6cf6"/><circle cx="34" cy="32" r="4" fill="#fff"/><circle cx="46" cy="32" r="4" fill="#fff"/><path d="M33,44 q7,6 14,0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M2,28 h18 m-6,-6 l6,6 l-6,6" stroke="#2fc58f" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M60,52 h18 m-6,-6 l6,6 l-6,6" stroke="#ff6f61" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
+ blubbq:`<svg viewBox="0 0 80 80"><path d="M16,70 C12,36 24,20 40,20 C56,20 68,36 64,70 C54,76 26,76 16,70z" fill="#7be0c3"/><circle cx="32" cy="42" r="7" fill="#fff"/><circle cx="50" cy="42" r="7" fill="#fff"/><circle cx="33" cy="43" r="3" fill="#23264d"/><circle cx="49" cy="43" r="3" fill="#23264d"/><text x="58" y="20" font-family="Fredoka" font-weight="700" font-size="22" fill="#8b6cf6">?</text><path d="M34,58 q6,5 12,0" stroke="#0c3a30" stroke-width="3" fill="none"/></svg>`,
+ brain:`<svg viewBox="0 0 80 80"><rect x="12" y="20" width="56" height="44" rx="10" fill="#4aa3ff"/><rect x="20" y="28" width="40" height="22" rx="4" fill="#e8f3ff"/><text x="40" y="39" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="11" fill="#23264d">MERKEN</text><rect x="28" y="64" width="24" height="8" rx="3" fill="#7c86b0"/><circle cx="62" cy="16" r="9" fill="#ffc93c"/><text x="62" y="17" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="13" fill="#23264d">!</text></svg>`,
+ count:`<svg viewBox="0 0 80 80"><circle cx="18" cy="40" r="12" fill="#ffd1dc" stroke="#ff9db4" stroke-width="3"/><circle cx="40" cy="40" r="12" fill="#fff3c9" stroke="#e3a215" stroke-width="3"/><circle cx="62" cy="40" r="12" fill="#e2f8ee" stroke="#2fc58f" stroke-width="3"/><text x="40" y="70" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#8b6cf6">? ? ?</text></svg>`,
+ gate:`<svg viewBox="0 0 80 80"><rect x="8" y="64" width="64" height="8" rx="3" fill="#7c86b0"/><rect x="34" y="20" width="12" height="44" rx="4" fill="#5b6894"/><rect x="10" y="34" width="26" height="8" rx="4" fill="#ff6f61"/><rect x="44" y="34" width="26" height="8" rx="4" fill="#ff6f61"/><circle cx="40" cy="16" r="7" fill="#ffc93c"/></svg>`,
+ startflag:`<svg viewBox="0 0 80 80"><path d="M6,44 h40 m-10,-10 l10,10 l-10,10" stroke="#5b6894" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="44" r="16" fill="#fff3c9" stroke="#e3a215" stroke-width="4"/><text x="60" y="45" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="13" fill="#23264d">?</text></svg>`,
+ coins:`<svg viewBox="0 0 80 80"><circle cx="30" cy="44" r="18" fill="#e0b25a" stroke="#b98a2e" stroke-width="3"/><text x="30" y="45" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="13" fill="#5c3d00">50ct</text><circle cx="54" cy="32" r="18" fill="#ffd34d" stroke="#e3a215" stroke-width="3"/><circle cx="54" cy="32" r="11" fill="#e8e8f0"/><text x="54" y="33" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="12" fill="#23264d">1€</text></svg>`,
+ coin100:`<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="28" fill="#ffd34d" stroke="#e3a215" stroke-width="4"/><circle cx="40" cy="40" r="17" fill="#e8e8f0"/><text x="40" y="41" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="17" fill="#23264d">1€</text></svg>`,
+ coin50:`<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="26" fill="#e0b25a" stroke="#b98a2e" stroke-width="4"/><text x="40" y="41" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="17" fill="#5c3d00">50ct</text></svg>`,
+ bulb:`<svg viewBox="0 0 80 80"><circle cx="40" cy="34" r="20" fill="#fff3c4" stroke="#e3a215" stroke-width="3"/><rect x="31" y="54" width="18" height="14" rx="3" fill="#a6afd3"/><path d="M34,36 l6,8 l6,-8" stroke="#e3a215" stroke-width="3" fill="none"/><path d="M10,20 l6,4 M70,20 l-6,4 M40,4 v6" stroke="#ffc93c" stroke-width="4" stroke-linecap="round"/></svg>`,
+ keks:`<svg viewBox="0 0 80 80"><path d="M40,6 l9,20 22,2 -17,14 6,22 -20,-12 -20,12 6,-22 -17,-14 22,-2z" fill="#f2b05e" stroke="#c47e2c" stroke-width="3" stroke-linejoin="round"/><circle cx="36" cy="34" r="3" fill="#7a4a1a"/><circle cx="46" cy="42" r="3" fill="#7a4a1a"/></svg>`,
+ musik:`<svg viewBox="0 0 80 80"><path d="M30,58 V18 l30,-8 v40" stroke="#8b6cf6" stroke-width="6" fill="none"/><ellipse cx="24" cy="58" rx="10" ry="8" fill="#8b6cf6"/><ellipse cx="54" cy="50" rx="10" ry="8" fill="#8b6cf6"/></svg>`,
+ bchew:`<svg class="oi" viewBox="0 0 80 80"><path d="M16,70 C12,36 24,20 40,20 C56,20 68,36 64,70 C54,76 26,76 16,70z" fill="#7be0c3"/><circle cx="33" cy="42" r="3.5" fill="#23264d"/><circle cx="49" cy="42" r="3.5" fill="#23264d"/><ellipse cx="41" cy="58" rx="8" ry="6" fill="#0c3a30"/><path d="M35,56 l3,4 l3,-4 l3,4" stroke="#7be0c3" stroke-width="2" fill="none"/></svg>`,
+ bspit:`<svg class="oi" viewBox="0 0 80 80"><path d="M16,70 C12,36 24,20 40,20 C56,20 68,36 64,70 C54,76 26,76 16,70z" fill="#7be0c3"/><path d="M28,42 l8,-3 M46,39 l8,3" stroke="#23264d" stroke-width="3" stroke-linecap="round"/><ellipse cx="40" cy="58" rx="7" ry="5" fill="#0c3a30"/><circle cx="66" cy="54" r="7" fill="#f2b05e"/></svg>`,
+ bdance:`<svg class="oi" viewBox="0 0 80 80"><g transform="rotate(-12 40 50)"><path d="M16,70 C12,36 24,20 40,20 C56,20 68,36 64,70 C54,76 26,76 16,70z" fill="#7be0c3"/><path d="M28,44 q5,-6 10,0 M44,44 q5,-6 10,0" stroke="#23264d" stroke-width="3" fill="none"/><path d="M32,56 q8,8 16,0" stroke="#0c3a30" stroke-width="3" fill="none"/></g><text x="60" y="22" font-size="18" fill="#8b6cf6">♪</text></svg>`
+};
+const svgIcon = (k, cls='') => ICON[k] ? ICON[k].replace('<svg', `<svg class="${cls}"`).replace('class="oi" class=','class=') : '';
+
+function sticker(i, earned){
+  const col=DCOL[i], gold = earned===deckMax(i);
+  const inner = [
+    '<circle cx="50" cy="52" r="16" fill="#b08cff"/><ellipse cx="50" cy="52" rx="26" ry="7" fill="none" stroke="#ffc93c" stroke-width="4" transform="rotate(-15 50 52)"/>',
+    '<rect x="34" y="40" width="32" height="18" rx="5" fill="#ffc93c" transform="rotate(-12 50 49)"/><rect x="38" y="45" width="24" height="8" rx="3" fill="#c47e2c" transform="rotate(-12 50 49)"/>',
+    '<path d="M34,66 C31,46 40,36 50,36 C60,36 69,46 66,66 C58,70 42,70 34,66z" fill="#7be0c3"/><circle cx="44" cy="50" r="3" fill="#23264d"/><circle cx="56" cy="50" r="3" fill="#23264d"/><path d="M45,58 q5,4 10,0" stroke="#23264d" stroke-width="2.5" fill="none"/>',
+    '<path d="M50,36 v30 M40,66 h20" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M38,40 q12,-10 24,0 M33,34 q17,-15 34,0" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
+    '<path d="M38,38 h24 l-4,30 h-16z" fill="#ff8fa3"/><rect x="38" y="44" width="24" height="7" fill="#fff"/><path d="M54,38 l6,-10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+    '<path d="M50,30 c10,8 12,22 8,34 h-16 c-4,-12 -2,-26 8,-34z" fill="#fff"/><circle cx="50" cy="46" r="5" fill="#4aa3ff"/><path d="M44,64 l-6,8 h10z M56,64 l6,8 h-10z" fill="#ffc93c"/>'
+  ][i];
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50,4 L60,14 74,10 78,24 92,28 88,42 96,52 88,60 92,74 78,78 74,92 60,88 50,96 40,88 26,92 22,78 8,74 12,60 4,50 12,42 8,28 22,24 26,10 40,14z" fill="${gold?'#ffc93c':'#dfe3f3'}"/>
+    <circle cx="50" cy="50" r="33" fill="${col}"/>${inner}<path d="M30,82 h40" stroke="none"/></svg>`;
+}
+function confetti(){ const cols=['#ffc93c','#ff6f61','#2fc58f','#4aa3ff','#8b6cf6'];
+  let s='<div class="confetti" aria-hidden="true">'; for(let i=0;i<16;i++){ const a=i/16*Math.PI*2, d=70+ (i%3)*30;
+    s+=`<i style="background:${cols[i%5]};--dx:${(Math.cos(a)*d).toFixed(0)}px;--dy:${(Math.sin(a)*d+30).toFixed(0)}px;--r:${i*47}deg"></i>`; } return s+'</div>'; }
+
+const marker = `<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahp"/></marker>
+  <marker id="ahh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahp hi"/></marker></defs>`;
+function arc(a,b,bend,r){
+  const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L,cx=mx+nx*bend,cy=my+ny*bend;
+  const u=(px,py,rr)=>{const vx=cx-px,vy=cy-py,l=Math.hypot(vx,vy)||1;return [px+vx/l*rr,py+vy/l*rr]};
+  const [sx,sy]=u(a.x,a.y,r),[ex,ey]=u(b.x,b.y,r+3);
+  return {d:`M${sx.toFixed(1)},${sy.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`, lx:.25*sx+.5*cx+.25*ex, ly:.25*sy+.5*cy+.25*ey};
+}
+function loop(c,r,dir){ const s=dir==='up'?-1:1, y0=c.y+s*(r-2), y1=c.y+s*(r+62);
+  return {d:`M${c.x-14},${y0} C${c.x-48},${y1} ${c.x+48},${y1} ${c.x+14},${y0+s*1}`, lx:c.x, ly:c.y+s*(r+50)}; }
+function edgeSvg(e,label,hi,cls='edge',lcls='lab',mk){ const m=mk||(hi?'ahh':'ah');
+  return `<path d="${e.d}" class="${cls}${hi?' hi':''}" marker-end="url(#${m})"/>${label?`<text x="${e.lx.toFixed(1)}" y="${e.ly.toFixed(1)}" class="${lcls}">${esc(label)}</text>`:''}`; }
+
+function introArt(){ return `<svg viewBox="0 0 600 260" role="img" aria-label="Raumstation ZETA, ein Meteorit fliegt vorbei, BIT winkt">
+  <rect width="600" height="260" fill="#1b1d55"/>
+  ${[[40,30],[120,200],[200,40],[540,30],[480,210],[580,140],[300,20],[20,150],[250,230]].map(([x,y],i)=>`<circle class="${i%2?'twinkle':''}" cx="${x}" cy="${y}" r="2" fill="#fff"/>`).join('')}
+  <circle cx="520" cy="200" r="60" fill="#4aa3ff"/><path d="M480,180 q20,-14 40,-2 q-6,18 -28,16z M520,220 q20,-6 34,6 q-14,12 -30,6z" fill="#2fc58f"/>
+  <g class="streak"><path d="M60,40 L130,80" stroke="#ffc93c" stroke-width="5" stroke-linecap="round" opacity=".6"/><circle cx="135" cy="83" r="12" fill="#a0785a"/><circle cx="131" cy="80" r="3" fill="#7a5a40"/></g>
+  <g transform="translate(300,125)" class="bob">
+    <rect x="-130" y="-10" width="80" height="20" rx="4" fill="#4aa3ff"/><rect x="50" y="-10" width="80" height="20" rx="4" fill="#4aa3ff"/>
+    ${[-120,-100,-80,-60,60,80,100,120].map(x=>`<line x1="${x}" y1="-10" x2="${x}" y2="10" stroke="#1b5fb5" stroke-width="2"/>`).join('')}
+    <rect x="-50" y="-6" width="100" height="12" fill="#c9d3f2"/><circle r="40" fill="#e9edff" stroke="#8a98d6" stroke-width="5"/><circle r="22" fill="#bfe9ff"/>
+    <circle cx="-8" cy="-3" r="4" fill="#23264d"/><circle cx="8" cy="-3" r="4" fill="#23264d"/><path d="M-7,8 q7,-6 14,0" stroke="#23264d" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <text x="0" y="62" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#fff">ZETA</text>
+    <circle cx="28" cy="-28" r="6" fill="#ff6f61" class="twinkle"/></g>
+  <g transform="translate(40,140) scale(.85)">${bitInner('wave')}</g></svg>`; }
+
+const P = { Kepler:{A:'Nebula',B:'Rubin',c1:'#7fb2ff',c2:'#2f5fbf',ring:false}, Nebula:{A:'Kepler',B:'Eisriese',c1:'#d0b5ff',c2:'#6a45c2',ring:true},
+  Rubin:{A:'Nebula',B:'Rubin',c1:'#ff9bb0',c2:'#b8304f',ring:false}, Eisriese:{A:'ZETA',B:'Nebula',c1:'#c8f4ff',c2:'#3d9bc2',ring:true}, ZETA:{} };
+function planetView(name){
+  const p=P[name]; let s=`<svg viewBox="0 0 360 210" role="img" aria-label="Du bist bei ${name}"><defs><radialGradient id="pg" cx="35%" cy="35%"><stop offset="0" stop-color="${p.c1||'#ccc'}"/><stop offset="1" stop-color="${p.c2||'#555'}"/></radialGradient></defs><rect width="360" height="210" fill="#1b1d55"/>`;
+  [[30,30],[80,170],[320,40],[290,180],[200,20],[340,110],[20,120],[150,195]].forEach(([x,y],i)=>s+=`<circle class="${i%2?'twinkle':''}" cx="${x}" cy="${y}" r="1.8" fill="#fff"/>`);
+  if(name==='ZETA'){
+    s+=`<g class="bob"><rect x="80" y="95" width="200" height="20" rx="4" fill="#4aa3ff"/><rect x="155" y="99" width="50" height="12" fill="#c9d3f2"/><circle cx="180" cy="105" r="44" fill="#e9edff" stroke="#8a98d6" stroke-width="5"/><circle cx="180" cy="105" r="24" fill="#bfe9ff"/>
+      <circle cx="172" cy="101" r="4" fill="#23264d"/><circle cx="188" cy="101" r="4" fill="#23264d"/><path d="M170,112 q10,10 20,0" stroke="#23264d" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+      ${[[60,40,'#ffc93c'],[300,50,'#ff6f61'],[90,170,'#2fc58f'],[280,170,'#8b6cf6']].map(([x,y,c])=>`<path d="M${x},${y-8} l2.5,5.5 6,.8 -4.4,4 1.1,6 -5.2,-3 -5.2,3 1.1,-6 -4.4,-4 6,-.8z" fill="${c}"/>`).join('')}`;
+  } else {
+    if(p.ring) s+=`<ellipse cx="180" cy="105" rx="100" ry="22" fill="none" stroke="${p.c1}" stroke-width="7" opacity=".5" transform="rotate(-14 180 105)"/>`;
+    s+=`<circle cx="180" cy="105" r="60" fill="url(#pg)"/><circle cx="160" cy="90" r="9" fill="#fff" opacity=".18"/><circle cx="200" cy="125" r="6" fill="#000" opacity=".12"/>
+      <circle cx="165" cy="105" r="5" fill="#23264d"/><circle cx="195" cy="105" r="5" fill="#23264d"/><path d="M168,120 q12,10 24,0" stroke="#23264d" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <circle cx="152" cy="116" r="6" fill="#ff8fa3" opacity=".6"/><circle cx="208" cy="116" r="6" fill="#ff8fa3" opacity=".6"/>`;
+    if(p.ring) s+=`<path d="M82,128 A100,22 -14 0 0 276,80" fill="none" stroke="${p.c1}" stroke-width="7" opacity=".95"/>`;
+  }
+  s+=`<g transform="translate(60,165) rotate(-20)"><path d="M-12,-9 h26 q14,9 0,18 h-26z" fill="#fff"/><circle cx="6" cy="0" r="4" fill="#4aa3ff"/><path d="M-12,-6 l-12,6 12,6z" fill="#ff6f61"/></g>`;
+  return s+'</svg>';
+}
+function starMap(){
+  const N={Kepler:{x:80,y:170},Nebula:{x:270,y:80},Rubin:{x:270,y:255},Eisriese:{x:450,y:170},ZETA:{x:590,y:170}}, r=34;
+  const seen=new Set(['Kepler', ...S.d1.log.map(l=>l.to)]);
+  const used=new Set(S.d1.log.map(l=>l.from+l.gate));
+  let s=`<svg viewBox="0 0 660 370" role="img" aria-label="Sternenkarte als Zustandsdiagramm">${marker}`;
+  s+=`<line x1="6" y1="170" x2="42" y2="170" class="edge" marker-end="url(#ah)"/><text x="22" y="150" class="lab">Start</text>`;
+  const E=(a,g,bend)=>{ const b=P[a][g]; const e = a===b ? loop(N[a],r,'down') : arc(N[a],N[b],bend,r); return edgeSvg(e,'Tor '+g, used.has(a+g)); };
+  s+=E('Kepler','A',22)+E('Nebula','A',22)+E('Kepler','B',0)+E('Nebula','B',22)+E('Eisriese','B',22)+E('Rubin','A',0)+E('Rubin','B')+E('Eisriese','A',0);
+  Object.entries(N).forEach(([k,c])=>{ s+=`<circle cx="${c.x}" cy="${c.y}" r="${r}" class="st ${seen.has(k)?'seen':''}"/>`;
+    if(k==='ZETA') s+=`<circle cx="${c.x}" cy="${c.y}" r="${r-6}" class="st ${seen.has(k)?'seen':''}" style="fill:none"/>`;
+    s+=`<text x="${c.x}" y="${c.y}" class="stt" style="font-size:${k.length>6?13:15}px">${k}</text>`; });
+  return s+'</svg>';
+}
+function kantineArt(){ return `<svg viewBox="0 0 360 220" role="img" aria-label="Kantine mit Snackautomat">
+  <rect width="360" height="220" fill="#2c2f74"/><rect y="170" width="360" height="50" fill="#3d418f"/>
+  <circle cx="60" cy="60" r="34" fill="#1b1d55" stroke="#c9d3f2" stroke-width="6"/><circle cx="68" cy="68" r="10" fill="#4aa3ff"/><circle cx="50" cy="48" r="2" fill="#fff"/>
+  <rect x="120" y="24" width="120" height="176" rx="14" fill="#ff6f61"/><rect x="132" y="38" width="72" height="110" rx="6" fill="#fff3c9"/>
+  ${[0,1,2].map(r=>[0,1,2].map(c=>`<rect x="${139+c*21}" y="${46+r*33}" width="15" height="24" rx="4" fill="${['#8b6cf6','#2fc58f','#4aa3ff'][(r+c)%3]}"/>`).join('')).join('')}
+  <rect x="210" y="40" width="22" height="14" rx="3" fill="#2fc58f"/><text x="221" y="47" font-family="Fredoka" font-weight="700" font-size="9" text-anchor="middle" dominant-baseline="central" fill="#fff">B3</text>
+  ${[0,1,2].map(r=>[0,1].map(c=>`<circle cx="${216+c*10}" cy="${68+r*12}" r="3.5" fill="#fff"/>`).join('')).join('')}
+  <rect x="140" y="160" width="80" height="22" rx="6" fill="#23264d"/><path d="M162,166 h28 l4,10 h-36z" fill="#ffc93c"/>
+  <circle cx="160" cy="98" r="0"/><text x="180" y="20" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#fff">SNACK-O-MAT</text>
+  <g transform="translate(250,95) scale(.72)">${bitInner('happy')}</g></svg>`; }
+function blubbArt(){
+  const a=S.d3.anim; const glow=a==='glow';
+  const body = glow ? '#9dffd9' : '#7be0c3';
+  let mouth = '<path d="M135,168 q15,12 30,0" stroke="#0c3a30" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  if(a==='chew') mouth='<ellipse cx="150" cy="170" rx="14" ry="10" fill="#0c3a30"/><path d="M140,166 l6,6 l6,-6 l6,6" stroke="#7be0c3" stroke-width="2" fill="none"/>';
+  if(a==='spit') mouth='<ellipse cx="150" cy="170" rx="12" ry="9" fill="#0c3a30"/><g class="fly"><path d="M168,160 l3,6 7,1 -5,5 1,7 -6,-3 -6,3 1,-7 -5,-5 7,-1z" fill="#f2b05e"/></g>';
+  if(a==='glow') mouth='<path d="M130,164 q20,20 40,0" stroke="#0c3a30" stroke-width="4" fill="#0c3a30" stroke-linecap="round"/>';
+  const cls = a==='dance'?'dance':(a==='wiggle'?'wiggle':'bob');
+  return `<svg viewBox="0 0 300 240" role="img" aria-label="Blubb im Glasbehälter"><rect width="300" height="240" fill="#1b1d55"/>
+    <rect x="70" y="20" width="160" height="200" rx="26" fill="rgba(143,227,255,.12)" stroke="#bfe9ff" stroke-width="4"/>
+    <path d="M86,40 v60" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".35"/>
+    <rect x="60" y="208" width="180" height="22" rx="8" fill="#8b6cf6"/><rect x="60" y="10" width="180" height="18" rx="8" fill="#8b6cf6"/>
+    ${glow?'<circle cx="150" cy="150" r="78" fill="#46d3a2" opacity=".28"/>':''}
+    ${a==='dance'?'<text x="86" y="74" font-size="28" fill="#ffc93c">♪</text><text x="196" y="94" font-size="24" fill="#ff8fa3">♫</text>':''}
+    <g class="${cls}"><path d="M95,190 C90,120 110,85 150,85 C190,85 210,120 205,190 C190,200 110,200 95,190 Z" fill="${body}"/>
+      <circle cx="132" cy="135" r="14" fill="#fff"/><circle cx="170" cy="135" r="14" fill="#fff"/><circle cx="135" cy="137" r="7" fill="#23264d"/><circle cx="167" cy="137" r="7" fill="#23264d"/><circle cx="137" cy="134" r="2.5" fill="#fff"/><circle cx="169" cy="134" r="2.5" fill="#fff"/>
+      <circle cx="116" cy="158" r="7" fill="#ff8fa3" opacity=".6"/><circle cx="186" cy="158" r="7" fill="#ff8fa3" opacity=".6"/>
+      <path d="M120,92 q-8,-26 6,-30" stroke="${body}" stroke-width="5" fill="none"/><circle cx="126" cy="60" r="7" fill="#ffc93c"/>${mouth}</g></svg>`;
+}
+function lockDiagram(){
+  const Z={x:170,y:165}, O={x:430,y:165}, r=36;
+  let s=`<svg viewBox="0 0 600 330" role="img" aria-label="Zustandsdiagramm der Schleuse mit Nummern">${marker}`;
+  s+=`<line x1="30" y1="165" x2="128" y2="165" class="edge" marker-end="url(#ah)"/>`;
+  s+=edgeSvg(arc(Z,O,-50,r),'Münze'); s+=edgeSvg(arc(O,Z,-50,r),'Durchgehen');
+  s+=edgeSvg(loop(Z,r,'up'),'Durchgehen'); s+=edgeSvg(loop(O,r,'up'),'Münze');
+  [[Z,'zu'],[O,'offen']].forEach(([c,t])=>s+=`<circle cx="${c.x}" cy="${c.y}" r="${r}" class="st"/><text x="${c.x}" y="${c.y}" class="stt">${t}</text>`);
+  const badge=(x,y,n)=>`<g class="badge"><circle cx="${x}" cy="${y}" r="14"/><text x="${x}" y="${y}">${n}</text></g>`;
+  s+=badge(476,206,1)+badge(352,232,2)+badge(352,108,3)+badge(70,142,4);
+  return s+'</svg>';
+}
+function juiceDiagram(){
+  const X=[80,240,400,560], N=['0 ct','50 ct','1 €','1,50 €'], cur=S.d5.state;
+  let s=`<svg viewBox="0 0 640 300" role="img" aria-label="Zustandsdiagramm Saft-Automat">${marker}`;
+  s+=`<line x1="8" y1="150" x2="42" y2="150" class="edge" marker-end="url(#ah)"/><text x="22" y="128" class="lab">Start</text>`;
+  for(let i=0;i<3;i++) s+=`<line x1="${X[i]+36}" y1="150" x2="${X[i+1]-39}" y2="150" class="edge" marker-end="url(#ah)"/><text x="${(X[i]+X[i+1])/2}" y="150" class="lab">50 ct</text>`;
+  s+=`<path d="M100,121 Q240,10 380,121" class="edge" marker-end="url(#ah)"/><text x="230" y="66" class="lab">1 €</text>`;
+  s+=`<path d="M260,121 Q400,50 540,121" class="edge" marker-end="url(#ah)"/><text x="440" y="92" class="lab">1 €</text>`;
+  s+=`<path d="M545,182 Q320,320 95,182" class="edge" marker-end="url(#ah)"/><text x="320" y="252" class="lab">Taste → Astro-Saft kommt heraus</text>`;
+  X.forEach((x,i)=>{ s+=`<circle cx="${x}" cy="150" r="34" class="st ${cur===i?'hi':''}"/>${i===3?`<circle cx="${x}" cy="150" r="28" class="st ${cur===i?'hi':''}" style="fill:none"/>`:''}<text x="${x}" y="150" class="stt" style="font-size:${i===3?14:16}px">${N[i]}</text>`; });
+  return s+'</svg>';
+}
+function juiceMachine(){ const d=S.d5; const amt=['0,00','0,50','1,00','1,50'][d.state];
+  return `<svg viewBox="0 0 240 220" role="img" aria-label="Saft-Automat, eingeworfen: ${amt} Euro"><rect width="240" height="220" fill="#2c2f74"/>
+  <rect x="50" y="10" width="140" height="200" rx="16" fill="#2fc58f"/><rect x="62" y="22" width="80" height="110" rx="8" fill="#e2f8ee"/>
+  ${[0,1].map(r=>[0,1,2].map(c=>`<g transform="translate(${70+c*24},${32+r*50})"><path d="M2,6 h16 l-2,36 h-12z" fill="${['#ff8fa3','#ffc93c','#8b6cf6'][c]}"/><rect x="2" y="16" width="16" height="8" fill="#fff"/></g>`).join('')).join('')}
+  <rect x="150" y="24" width="32" height="22" rx="4" fill="#1b1d55"/><text x="166" y="35" text-anchor="middle" dominant-baseline="central" font-family="Fredoka" font-weight="700" font-size="11" fill="#ffc93c">${amt}</text>
+  <rect x="158" y="56" width="16" height="4" rx="2" fill="#1b1d55"/><circle cx="166" cy="80" r="10" fill="#ff6f61" stroke="#fff" stroke-width="3"/>
+  <rect x="72" y="150" width="96" height="40" rx="8" fill="#1b1d55"/>
+  ${d.juice?`<g class="pop"><path d="M108,156 h24 l-3,30 h-18z" fill="#ff8fa3"/><rect x="108" y="164" width="24" height="7" fill="#fff"/></g>`:''}
+  <text x="120" y="208" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="11" fill="#fff">ASTRO-SAFT 1,50 €</text></svg>`; }
+
+const BN={aus:{x:150,y:150}, an:{x:390,y:150}}, BR=44;
+function blueprint(){
+  const d=S.d6;
+  let s=`<svg viewBox="0 0 540 300" role="img" aria-label="Bauplan für den Lichtschalter"><defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20,0 L0,0 0,20" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1"/></pattern>
+    <marker id="bpa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffc93c"/></marker></defs>
+    <rect width="540" height="300" fill="url(#grid)"/>
+    <text x="16" y="26" fill="#bfe0ff" font-family="Fredoka" font-weight="600" font-size="15">BAUPLAN · Lichtschalter Kapsel 1</text>
+    <g transform="translate(470,248)"><circle r="20" fill="#fff3c4" opacity="${S.d6.sim==='an'?1:.25}"/><path d="M-6,20 h12" stroke="#bfe0ff" stroke-width="4"/></g>`;
+  if(d.start){ const c=BN[d.start]; const fromX = d.start==='aus' ? c.x-110 : c.x+110; const toX = d.start==='aus' ? c.x-BR-4 : c.x+BR+4;
+    s+=`<line x1="${fromX}" y1="${c.y}" x2="${toX}" y2="${c.y}" class="bpedge" marker-end="url(#bpa)"/><text x="${(fromX+toX)/2}" y="${c.y-16}" class="bplab">Start</text>`; }
+  const cnt={};
+  d.arrows.forEach(a=>{ const k=a.from+a.to; cnt[k]=(cnt[k]||0); const extra=cnt[k]*34; cnt[k]++;
+    let e; if(a.from===a.to){ e=loop(BN[a.from],BR, a.from==='aus'?'up':'down'); if(extra){ e.ly += (a.from==='aus'?-1:1)*extra*0.6; } }
+    else e=arc(BN[a.from],BN[a.to],-46-extra,BR);
+    s+=edgeSvg(e,a.label,false,'bpedge','bplab','bpa'); });
+  ['aus','an'].forEach(k=>{ const c=BN[k]; const cls=['node', d.from===k?'from':'', d.start===k?'start':''].join(' ');
+    s+=`<g class="${cls}" data-act="node" data-n="${k}" role="button" tabindex="0" aria-label="Zustand ${k}"><circle cx="${c.x}" cy="${c.y}" r="${BR+12}" fill="transparent"/>
+      <circle class="ring" cx="${c.x}" cy="${c.y}" r="${BR}"/><text x="${c.x}" y="${c.y}" class="bpt">${k}</text></g>`; });
+  return s+'</svg>';
+}
+function cabin(){
+  const on = S.d6.sim==='an';
+  return `<svg viewBox="0 0 260 280" role="img" aria-label="Kapsel von innen, Licht ist ${on?'an':'aus'}">
+    <defs><radialGradient id="cone" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#fff1b8" stop-opacity=".9"/><stop offset="1" stop-color="#fff1b8" stop-opacity="0"/></radialGradient>
+    <clipPath id="win"><circle cx="70" cy="120" r="38"/></clipPath></defs>
+    <rect width="260" height="280" fill="${on?'#6a74c9':'#121433'}"/>
+    <path d="M0,236 Q130,206 260,236 L260,280 L0,280 Z" fill="${on?'#4f58a8':'#0b0c26'}"/>
+    <circle cx="70" cy="120" r="46" fill="#c9d3f2"/><circle cx="70" cy="120" r="38" fill="#0a0d2c"/>
+    <g clip-path="url(#win)"><circle cx="92" cy="150" r="34" fill="#4aa3ff"/><path d="M70,136 q14,-8 26,2 q-6,10 -18,8z" fill="#2fc58f"/><circle cx="50" cy="100" r="1.8" fill="#fff"/><circle cx="62" cy="92" r="1.2" fill="#fff"/></g>
+    <rect x="150" y="0" width="8" height="38" fill="#c9d3f2"/><path d="M124,38 L184,38 L174,56 L134,56 Z" fill="#c9d3f2"/>
+    <ellipse cx="154" cy="58" rx="18" ry="8" fill="${on?'#fff3c4':'#3b4170'}"/>
+    ${on?'<path d="M136,60 L56,246 L254,246 L172,60 Z" fill="url(#cone)"/>':''}
+    <g transform="translate(120,170) scale(.5)">${bitInner(on?'cheer':'think')}</g>
+    <rect x="200" y="118" width="40" height="62" rx="8" fill="#dfe6ff" stroke="#8a98d6" stroke-width="3"/>
+    <rect x="212" y="${on?126:150}" width="16" height="22" rx="5" fill="${on?'#ffc93c':'#8a98d6'}"/>
+    <text x="220" y="198" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="13" fill="${on?'#23264d':'#c9d3f2'}">${on?'AN':'AUS'}</text></svg>`;
+}
+function builderScore(){
+  const d=S.d6; let wrong=0;
+  const okStart=d.start==='aus';
+  const aOk=d.arrows.some(a=>a.from==='aus'&&a.to==='an'&&isPress(a.label));
+  const bOk=d.arrows.some(a=>a.from==='an'&&a.to==='aus'&&isPress(a.label));
+  d.arrows.forEach(a=>{ if(!((a.from==='aus'&&a.to==='an')||(a.from==='an'&&a.to==='aus')) || !isPress(a.label)) wrong++; });
+  const sc=Math.max(0,(okStart?2:0)+(aOk?2:0)+(bOk?2:0)-wrong);
+  return {sc, okStart, aOk, bOk, wrong};
+}
+
+/* ================= Bausteine ================= */
+function qBlock(id, n){
+  const q=Q[id], st=qs(id), done=st.done;
+  let body='';
+  if(q.type==='choice'){
+    body=`<div class="${q.pics?'picgrid':'stack'}">${q.options.map((o,i)=>{ let c='opt'; let dis=done||st.wrong.includes(i);
+      if(done){ if(i===q.correct) c+=' ok'; else if(st.wrong.includes(i)) c+=' bad'; } else if(st.wrong.includes(i)) c+=' bad';
+      return `<button class="${c}" type="button" data-act="pick" data-q="${id}" data-i="${i}" aria-pressed="${st.val===i}" ${dis?'disabled':''}>${o.ic?svgIcon(o.ic,'oi'):''}<span>${esc(optText(o))}</span></button>`; }).join('')}</div>`;
+  } else if(q.type==='gap'){
+    const parts=q.prompt.split('___');
+    body=`<p class="prompt" data-read>${parts.map((p,i)=> i<parts.length-1 ? esc(p)+`<input type="text" class="gap ${done?(st.correct?'ok':'bad'):''}" id="in-${id}-${i}" data-q="${id}" data-k="${i}" value="${esc(st.val[i]||'')}" autocomplete="off" spellcheck="false" aria-label="Lücke ${i+1}" ${done?'disabled':''}>` : esc(p)).join('')}</p>`;
+  } else {
+    body=`<input type="text" id="in-${id}" data-q="${id}" value="${esc(st.val)}" autocomplete="off" spellcheck="false" class="${done?(st.correct?'ok':'bad'):''}" ${done?'disabled':''}
+      ${q.type==='money'?'placeholder="z. B. 50 ct"':q.type==='route'?'placeholder="z. B. BAB"':'placeholder="Deine Antwort"'} aria-label="Antwort">`;
+  }
+  const just = S.justOk===id;
+  let status='';
+  if(done && st.correct) status=`<div class="status good ${just?'pop':''}">${['Super!','Klasse!','Spitze!','Toll gemacht!'][n%4]} +${st.earned} Energie${st.tries?' (zweiter Versuch)':''}</div>`;
+  else if(done) status=`<div class="status wrong">Nicht schlimm! Richtig ist: <b>${esc(q.solution || optText(q.options?.[q.correct]) || '')}</b></div>`;
+  else if(st.tries===1) status=`<div class="status try">Fast! Lies BITs Tipp und versuche es noch einmal.</div>`;
+  const hint = st.hint && !done ? sayChips(st.tries?'think':'happy', q.hint.text,
+      q.hint.chips?`<div class="chips">${q.hint.chips.map(c=>`<button class="chip" type="button" data-act="chip" data-q="${id}" data-t="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:'') : '';
+  const btns = done ? '' : `<div class="btnrow"><button class="btn sm mint" type="button" data-act="check" data-q="${id}">Prüfen</button>
+      ${st.hint?'':`<button class="btn ghost" type="button" data-act="hint" data-q="${id}">BIT um Hilfe fragen</button>`}</div>`;
+  const qtext = `${q.type==='gap'?'':`<p class="prompt" data-read>${q.prompt}</p>`}${body}`;
+  return `<div class="qcard ${done?(st.correct?'ok':'bad'):''}">${just?confetti():''}<div class="qhead"><span class="qnum">Aufgabe ${n}</span><span class="pts">${bolt}${done?st.earned:q.pts} / ${q.pts}</span></div>
+    ${q.img ? `<div class="qbody"><div class="qimg">${ICON[q.img]}</div><div class="qtext">${qtext}</div></div>` : qtext}
+    ${status}${hint}${btns}</div>`;
+}
+function nextBtn(i, extraOk=true, label='Weiter zum nächsten Deck'){
+  if(!(deckAllDone(i)&&extraOk)) return '';
+  const sc=deckScore(i), mx=deckMax(i);
+  return `<div class="reward pop">${sticker(i,sc)}<div class="rt"><h3>Neuer Sticker: ${STICK[i]}!</h3>
+      <p data-read>Deck ${i+1} läuft wieder! Du hast ${sc} von ${mx} Energiepunkten gesammelt.${sc===mx?' Alles richtig, dein Sticker ist golden!':''}</p></div></div>
+     <button class="btn big self" type="button" data-act="next">${label}</button>`;
+}
+const head=(i,title,story)=>`<span class="pill">Deck ${i+1} von 6 · ${DECKS[i]}</span><h2>${title}</h2>${story.map(p=>`<p data-read>${p}</p>`).join('')}`;
+
+/* ================= Ansichten ================= */
+const VIEWS = {
+intro(){ return `
+  <div class="art">${introArt()}</div>
+  <span class="pill" style="--deck:#ff6f61">Alarm auf Raumstation ZETA</span>
+  <h1>Notfall auf ZETA</h1>
+  <p data-read>Ein Meteorit hat die Raumstation ZETA getroffen. Der Bordcomputer hat sein Gedächtnis verloren, und alle Automaten an Bord spielen verrückt. Du bist mit deinem Shuttle unterwegs und sollst helfen.</p>
+  <p data-read>Repariere sechs Decks. Für jede richtige Antwort bekommst du Energie, und für jedes Deck einen Sticker. Am Ende fliegst du mit der Rettungskapsel zur Erde.</p>
+  ${say('wave','Hallo, ich bin BIT, dein Bordroboter! Wenn du nicht weiterweißt, frag mich einfach. Wenn eine Antwort falsch ist, gebe ich dir einen Tipp, und du darfst es noch einmal versuchen. Kleine Rechtschreibfehler sind kein Problem.')}
+  ${SAVED && SAVED.screen && SAVED.screen!=='intro' ? `<div class="reward"><div class="rt"><h3>Gespeicherte Mission gefunden</h3>
+      <p data-read>${esc(SAVED.name||'Jemand')} war schon bis ${DNAME[SAVED.screen]||'zum Start'} gekommen. Möchtest du weiterspielen?</p>
+      <div class="btnrow"><button class="btn mint" type="button" data-act="resume">Weiterspielen</button><button class="btn ghost" type="button" data-act="discard">Neu anfangen</button></div></div></div>`
+  : `<div class="stack"><label for="name" data-read><b>Wie heißt du?</b></label>
+  <input type="text" id="name" autocomplete="off" maxlength="30" value="${esc(S.name)}" placeholder="Dein Vorname"></div>
+  <button class="btn big self" data-act="start" type="button">Mission starten</button>`}
+  <button class="btn ghost self" type="button" data-act="teacher" style="font-size:14px">Für Lehrkräfte: Ergebnisse auf diesem Gerät</button>`; },
+
+results(){
+  if(!teacher.ok) return `<span class="pill" style="--deck:#5b6894">Für Lehrkräfte</span><h2>Ergebnisse auf diesem Gerät</h2>
+    <div class="stack"><label for="tcode">Bitte den Code eingeben:</label><input type="text" id="tcode" inputmode="numeric" autocomplete="off" value="" style="max-width:180px">
+    ${teacher.wrong?'<p class="status wrong">Der Code stimmt nicht.</p>':''}</div>
+    <div class="btnrow"><button class="btn mint" type="button" data-act="tcheck">Öffnen</button><button class="btn ghost" type="button" data-act="home">Zurück</button></div>`;
+  const list=store.get(RKEY)||[];
+  return `<span class="pill" style="--deck:#5b6894">Für Lehrkräfte</span><h2>Ergebnisse auf diesem Gerät</h2>
+    <p class="cap">Jede beendete Mission auf diesem iPad, die neueste zuerst. Die Daten liegen nur in diesem Browser.</p>
+    ${list.length?`<div class="logwrap" style="max-height:none;overflow-x:auto"><table class="log"><thead><tr><th>Name</th><th>Datum</th><th>Punkte</th>${DECKS.map((d,i)=>`<th>D${i+1}</th>`).join('')}<th>Hilfen</th><th>2. Versuch</th></tr></thead><tbody>
+      ${list.slice().reverse().map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.date)}</td><td><b>${r.total} / ${r.max}</b></td>${r.decks.map(x=>`<td>${x}</td>`).join('')}<td>${r.hints}</td><td>${r.second}</td></tr>`).join('')}</tbody></table></div>`
+      : '<p>Auf diesem Gerät wurde noch keine Mission beendet.</p>'}
+    <p class="cap">D1 bis D6: Punkte pro Deck (max. ${DECKS.map((_,i)=>deckMax(i)).join(' / ')}).</p>
+    <div class="btnrow">${list.length?(teacher.confirmDel?`<button class="btn coral" type="button" data-act="tdelyes">Ja, alle Ergebnisse löschen</button><button class="btn ghost" type="button" data-act="tdelno">Abbrechen</button>`
+      :`<button class="btn ghost" type="button" data-act="tdel">Liste löschen</button>`):''}<button class="btn ghost" type="button" data-act="home">Zurück zum Start</button></div>`; },
+
+d1(){ const d=S.d1, here=d.at;
+  return head(0,'Verloren im All',['Dein Shuttle hängt beim Planeten Kepler fest. Das Navi ist kaputt. Jeder Planet hat zwei Sprungtore, A und B. Jedes Tor bringt dich immer zum selben Ziel.','Finde den Weg zur Raumstation ZETA. Dein Logbuch schreibt jeden Sprung mit.'])+`
+  <div class="scene"><div class="art">${planetView(here)}</div>
+    <div class="stack"><h3>${here==='ZETA'?'Angedockt an ZETA!':'Du bist bei '+here}</h3>
+      ${here==='ZETA' ? say('cheer','Juhu, geschafft! Aus deinem Logbuch habe ich eine Sternenkarte gezeichnet.',true)
+        : `<div class="btnrow"><button class="btn" type="button" data-act="jump" data-g="A">Sprungtor A</button><button class="btn coral" type="button" data-act="jump" data-g="B">Sprungtor B</button></div>
+           <p class="cap">Sprünge bisher: ${d.log.length}</p>`}
+    </div></div>
+  ${d.log.length?`<div class="logwrap"><table class="log"><thead><tr><th>Planet</th><th>Tor</th><th>Neuer Planet</th></tr></thead><tbody>${d.log.map(l=>`<tr><td>${l.from}</td><td>${l.gate}</td><td>${l.to}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${!d.found && d.log.length>=8 ? say('think','Schau ins Logbuch. Welche Tore hast du bei welchem Planeten schon probiert? Probiere die anderen aus.',true):''}
+  ${d.found ? `<h3>Die Sternenkarte</h3><div class="diagram">${starMap()}</div><p class="cap">Grün: Planeten, die du besucht hast. Gelb: Sprungtore, die du benutzt hast.</p>
+     ${qBlock('r1',1)}${qBlock('r2',2)}${qBlock('r3',3)}${nextBtn(0)}` : ''}`; },
+
+d2(){ return head(1,'Chaos in der Kantine',['Die Crew hat Hunger, aber die Automaten in der Kantine haben vergessen, wie sie funktionieren. Hilf dem Bordcomputer, sich zu erinnern.'])+`
+  <div class="scene"><div class="art">${kantineArt()}</div>${say('happy','Am Snack-O-Mat wirfst du einen Weltraum-Chip ein und drückst B3. Dann fällt ein Astro-Riegel heraus. Chip und Knopfdruck sind die <b>Eingabe</b>, der Riegel ist die <b>Ausgabe</b>.',true)}</div>
+  ${qBlock('k1',1)}${qBlock('k2',2)}${qBlock('k3',3)}${qBlock('k4',4)}${nextBtn(1)}`; },
+
+d3(){ const d=S.d3, n=d.log.length;
+  return head(2,'Das Wesen im Labor',['Im Labor wohnt Blubb, ein kleines Weltraumwesen. Blubb ist ein Automat: Er reagiert immer nach festen Regeln. Aber nach welchen?','Teste Blubb mindestens 6-mal. Deine Forschertabelle füllt sich von selbst.'])+`
+  <div class="scene"><div class="art">${blubbArt()}</div>
+    <div class="stack"><div class="btnrow"><button class="btn" type="button" data-act="blubb" data-in="keks">${svgIcon('keks','ic')}Sternkeks</button><button class="btn coral" type="button" data-act="blubb" data-in="musik">${svgIcon('musik','ic')}Musik</button></div>
+      <p class="msg" data-read>${n?esc(d.log[n-1].out):'Blubb schaut dich neugierig an.'}</p><p class="cap">Versuche: ${n}${n<6?' von mindestens 6':''}</p></div></div>
+  ${n?`<div class="logwrap"><table class="log"><thead><tr><th>Nr.</th><th>Eingabe</th><th>Was macht Blubb?</th></tr></thead><tbody>${d.log.map((l,i)=>`<tr><td>${i+1}</td><td>${l.inp}</td><td>${esc(l.out)}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${n>=6 ? qBlock('b1',1)+qBlock('b2',2)+qBlock('b3',3)+qBlock('b4',4)+nextBtn(2) : ''}`; },
+
+d4(){ return head(3,'Der Bauplan der Schleuse',['Im Funkraum kommt ein Bauplan an: das Zustandsdiagramm der Schleuse. Die Schleuse funktioniert wie ein Drehkreuz im Schwimmbad. Leider fehlen die Fachwörter. Schreibe sie hinein.'])+`
+  <div class="diagram">${lockDiagram()}</div>
+  ${say('happy','Die roten Nummern zeigen auf die Teile des Diagramms. Schau genau hin!',true)}
+  ${qBlock('f1',1)}${qBlock('f2',2)}${qBlock('f3',3)}${qBlock('f4',4)}${qBlock('f5',5)}${nextBtn(3)}`; },
+
+d5(){ const d=S.d5;
+  return head(4,'Der Saft-Automat',['Im Maschinenraum steht der Saft-Automat. Ein Astro-Saft kostet 1,50 €. Der Automat nimmt 50-ct-Münzen und 1-€-Münzen. Der gelbe Kreis im Diagramm zeigt, in welchem Zustand er gerade ist.','Kaufe zuerst einen Astro-Saft. Beantworte dann die Fragen.'])+`
+  <div class="scene"><div class="art">${juiceMachine()}</div>
+    <div class="stack"><div class="btnrow"><button class="btn ghost" type="button" data-act="coin" data-c="50">${svgIcon('coin50','ic')}50 ct</button><button class="btn ghost" type="button" data-act="coin" data-c="100">${svgIcon('coin100','ic')}1 €</button></div>
+      <button class="btn coral self" type="button" data-act="coin" data-c="taste">Taste drücken</button>
+      <p class="msg" data-read>${esc(d.msg||'Der Automat wartet auf Münzen.')}</p><p class="cap">Gekaufte Astro-Säfte: ${d.juice}</p></div></div>
+  <div class="diagram">${juiceDiagram()}</div>
+  ${qBlock('m1',1)}${qBlock('m2',2)}${qBlock('m3',3)}
+  ${deckAllDone(4)&&!d.juice?say('think','Die Crew hat Durst! Kaufe noch einen Astro-Saft, dann geht es weiter.',true):''}
+  ${nextBtn(4, d.juice>0)}`; },
+
+d6(){ const d=S.d6, st=qs('c1'), done=st.done;
+  const tools = done ? '' : `<div class="btnrow">
+      <button class="btn ghost" type="button" data-act="tool" data-t="start" aria-pressed="${d.tool==='start'}">Startpfeil setzen</button>
+      <button class="btn ghost" type="button" data-act="tool" data-t="arrow" aria-pressed="${d.tool==='arrow'}">Neuen Pfeil zeichnen</button>
+      <button class="btn ghost" type="button" data-act="clear">Alles löschen</button></div>`;
+  let instr='Wähle ein Werkzeug.';
+  if(d.tool==='start') instr='Tippe auf den Kreis, in dem der Lichtschalter startet.';
+  if(d.tool==='arrow') instr = !d.from ? 'Tippe auf den Kreis, wo der Pfeil beginnt.' : !d.to ? `Der Pfeil beginnt bei „${d.from}“. Tippe auf den Kreis, wo er endet. Er darf auch zum selben Kreis zurückführen.` : '';
+  const labelRow = d.tool==='arrow' && d.from && d.to ? `<div class="stack"><label for="arrowlabel"><b>Pfeil von „${d.from}“ nach „${d.to}“:</b> Welche Eingabe steht daran?</label>
+      <div class="btnrow"><input type="text" id="arrowlabel" value="${esc(d.label)}" placeholder="z. B. Münze" autocomplete="off" style="max-width:240px"><button class="btn sm mint" type="button" data-act="savearrow">Pfeil speichern</button><button class="btn ghost" type="button" data-act="cancelarrow">Abbrechen</button></div></div>` : '';
+  const bs=builderScore();
+  const feedback = (st.tries>=1 || done) ? `<ul class="checklist"><li class="${bs.okStart?'y':'n'}">${bs.okStart?'✓':'✗'} Startpfeil zeigt auf „aus“</li>
+      <li class="${bs.aOk?'y':'n'}">${bs.aOk?'✓':'✗'} Pfeil von „aus“ nach „an“ mit der richtigen Eingabe</li>
+      <li class="${bs.bOk?'y':'n'}">${bs.bOk?'✓':'✗'} Pfeil von „an“ nach „aus“ mit der richtigen Eingabe</li>
+      ${bs.wrong?`<li class="n">✗ ${bs.wrong} Pfeil${bs.wrong>1?'e':''} zu viel oder falsch beschriftet</li>`:''}</ul>` : '';
+  return head(5,'Licht in der Rettungskapsel',['Du sitzt in der Rettungskapsel. Es ist stockdunkel! Der Lichtschalter hat zwei Zustände: aus und an. Am Anfang ist das Licht aus.','Baue auf dem Bauplan das Zustandsdiagramm für den Lichtschalter. Teste es in der Kapsel, bevor du es einbaust.'])+`
+  <div class="duo">
+    <div class="stack"><div class="bp">${blueprint()}</div>${tools}<p class="cap" data-read>${instr}</p>${labelRow}
+      ${d.arrows.length?`<div class="arrows">${d.arrows.map((a,i)=>`<div class="arrowitem"><span>${a.from} → ${a.to}: <b>${esc(a.label)}</b></span>${done?'':`<button class="x" type="button" data-act="delarrow" data-i="${i}" aria-label="Pfeil löschen">löschen</button>`}</div>`).join('')}</div>`:''}
+    </div>
+    <div class="stack"><div class="art">${cabin()}</div>
+      <div class="btnrow"><button class="btn sm" type="button" data-act="press">Schalter drücken</button><button class="btn ghost" type="button" data-act="simreset">Neu starten</button></div>
+      <p class="cap" data-read>${esc(d.simMsg||'Drücke den Schalter und schau, ob dein Bauplan funktioniert.')}</p></div>
+  </div>
+  <div class="qcard ${done?(st.earned===6?'ok':'bad'):''}">${S.justOk==='c1'?confetti():''}<div class="qhead"><span class="qnum">Aufgabe 1 · Bauplan einbauen</span><span class="pts">${bolt}${done?st.earned:6} / 6</span></div>
+    ${feedback}
+    ${done ? (st.correct ? `<div class="status good pop">Der Bauplan ist eingebaut! +${st.earned} Energie</div>` : `<div class="status wrong">Richtig wäre: Startpfeil zu „aus“, von „aus“ mit „Schalter drücken“ nach „an“, von „an“ mit „Schalter drücken“ nach „aus“. +${st.earned} Energie</div>`)
+      : `${st.tries===1?say('think','Fast! Schau auf die Liste oben und ändere die roten Punkte. Teste dann mit dem Schalter. Am Pfeil steht, was du tust, zum Beispiel „Schalter drücken“.',true):''}
+      ${st.hint&&st.tries===0?say('happy','Du brauchst einen Startpfeil und zwei Pfeile. Was passiert, wenn das Licht aus ist und du drückst? Und was, wenn es an ist und du drückst?',true):''}
+      <div class="btnrow"><button class="btn sm mint" type="button" data-act="build" ${d.start||d.arrows.length?'':'disabled'}>Bauplan einbauen</button>
+      ${st.hint||st.tries?'':`<button class="btn ghost" type="button" data-act="hint" data-q="c1">BIT um Hilfe fragen</button>`}</div>`}
+  </div>
+  ${done ? qBlock('c2',2) : ''}
+  ${nextBtn(5,true,'Kapsel starten')}`; },
+
+end(){ const t=total(); const pct=t/MAXTOTAL; const rank=pct>=.9?'Kommandant:in':pct>=.7?'Offizier:in':pct>=.5?'Pilot:in':'Kadett:in in Ausbildung';
+  const now=new Date(); const stamp=now.toLocaleDateString('de-DE')+', '+now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  return `<div class="art"><svg viewBox="0 0 400 180" aria-hidden="true"><rect width="400" height="180" fill="#5fb6ff"/><circle cx="340" cy="40" r="22" fill="#ffc93c"/>
+    <ellipse cx="90" cy="40" rx="34" ry="12" fill="#fff"/><ellipse cx="250" cy="60" rx="28" ry="10" fill="#fff"/>
+    <path d="M0,150 q100,-30 200,-6 q100,20 200,-10 L400,180 L0,180Z" fill="#2fc58f"/>
+    <g class="descend"><path d="M162,26 Q200,-14 238,26 Z" fill="#ff6f61"/><path d="M181,26 Q200,0 219,26" fill="#fff" opacity=".5"/><line x1="166" y1="26" x2="190" y2="76" stroke="#23264d"/><line x1="234" y1="26" x2="210" y2="76" stroke="#23264d"/>
+    <path d="M184,76 L216,76 L226,108 L174,108 Z" fill="#fff" stroke="#8a98d6" stroke-width="3"/><circle cx="200" cy="92" r="7" fill="#bfe9ff" stroke="#8a98d6" stroke-width="2"/></g></svg></div>
+  ${confetti()}
+  <span class="pill" style="--deck:#2fc58f">Mission geschafft</span>
+  <h2 data-read>Gute Landung, ${esc(S.name||'Raumfahrer:in')}!</h2>
+  ${say('cheer',`Du hast alle Automaten von ZETA repariert und bist sicher auf der Erde gelandet. Dein Rang: <b>${rank}</b>.`)}
+  <div class="big">${t}<span style="font-size:.4em;color:var(--muted)"> / ${MAXTOTAL} Energie</span></div>
+  <h3>Deine Sticker</h3>
+  <div class="stickers">${DECKS.map((d,i)=>`<div class="sticker">${sticker(i,deckScore(i))}<b>${STICK[i]}</b><span>${deckScore(i)} / ${deckMax(i)}</span></div>`).join('')}</div>
+  <p class="cap">BIT um Hilfe gefragt: ${S.hints}-mal · Zweiter Versuch gebraucht: ${S.second}-mal</p>
+  <p class="cap" data-read>Zeige diesen Bildschirm deiner Lehrkraft. Gespielt am ${stamp}. Dein Ergebnis ist auf diesem Gerät gespeichert.</p>
+  <button class="btn ghost self" data-act="restart" type="button">Neue Mission für das nächste Kind</button>`; }
+};
+
+/* ================= Steuerung ================= */
+const app=document.getElementById('app'), bar=document.getElementById('bar');
+const canSpeak='speechSynthesis' in window;
+function renderBar(){
+  const idx=ORDER.indexOf(S.screen)-1;
+  const stars=DECKS.map((_,i)=>{ const fin=(deckAllDone(i)&&i<idx)||S.screen==='end';
+    const f = fin ? (deckScore(i)===deckMax(i)?'#ffc93c':'#ffe39a') : (i===idx?'#fff3c9':'#eef0f8');
+    return `<span title="Deck ${i+1}: ${DECKS[i]}">${starIcon(f, fin||i===idx?'#e3a215':'#c9cee6')}</span>`; }).join('');
+  bar.innerHTML=`<div class="stars">${stars}</div><div class="energy">${bolt}${total()} / ${MAXTOTAL}</div>
+    ${canSpeak?`<button class="speak" data-act="speak" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>Vorlesen</button>`:''}`;
+}
+function setDeckColor(){ const i=ORDER.indexOf(S.screen)-1; app.style.setProperty('--deck', DCOL[i] || '#8b6cf6'); }
+function render(){ const y=window.scrollY; renderBar(); setDeckColor(); app.innerHTML=VIEWS[S.screen](); S.justOk=''; save(); window.scrollTo(0,y); }
+function go(s){ S.screen=s; S.justOk=''; if(s==='end') recordResult(); save(); try{speechSynthesis.cancel()}catch(e){}; renderBar(); setDeckColor(); app.innerHTML=VIEWS[s](); window.scrollTo(0,0); app.focus({preventScroll:true}); }
+
+function blubb(inp){ const d=S.d3; let out;
+  if(inp==='keks'){ if(d.state===0){d.state=1; out='Mampf! Blubb kaut den Keks.'; d.anim='chew';}
+    else if(d.state===1){d.state=2; out='Mampf! Blubb kaut und leuchtet grün.'; d.anim='glow';}
+    else { out='Bäh! Blubb spuckt den Keks aus.'; d.anim='spit'; } }
+  else { if(d.state===2){ d.state=0; out='Blubb tanzt wild herum.'; d.anim='dance'; } else { out='Blubb wackelt ein bisschen.'; d.anim='wiggle'; } }
+  d.log.push({inp: inp==='keks'?'Sternkeks':'Musik', out}); render();
+}
+function coin(c){ const d=S.d5;
+  if(c==='taste'){ if(d.state===3){ d.state=0; d.juice++; d.msg='Klack! Ein Astro-Saft kommt heraus. Der Automat ist wieder bei 0 ct.'; } else d.msg='Nichts passiert. Hier gibt es keinen Pfeil für die Taste.'; }
+  else if(c==='50'){ if(d.state<3){ d.state++; d.msg='Klimper! Die 50-ct-Münze fällt hinein.'; } else d.msg='Die Münze fällt wieder heraus. Hier gibt es keinen Pfeil für 50 ct.'; }
+  else { if(d.state<=1){ d.state+=2; d.msg='Klimper! Die 1-€-Münze fällt hinein.'; } else d.msg='Die Münze fällt wieder heraus. Hier gibt es keinen Pfeil für 1 €.'; }
+  render();
+}
+function nodeClick(n){ const d=S.d6; if(qs('c1').done) return;
+  if(d.tool==='start'){ d.start=n; d.tool=''; d.sim=''; d.simMsg=''; render(); return; }
+  if(d.tool==='arrow'){ if(!d.from) d.from=n; else if(!d.to) d.to=n; render(); if(d.to) document.getElementById('arrowlabel')?.focus(); return; }
+  d.simMsg='Wähle zuerst ein Werkzeug unter dem Bauplan.'; render();
+}
+function saveArrow(){ const d=S.d6; const l=(document.getElementById('arrowlabel')?.value||'').trim(); if(!l) return;
+  d.arrows.push({from:d.from,to:d.to,label:l}); d.from=''; d.to=''; d.label=''; d.tool=''; d.sim=''; d.simMsg=''; render(); }
+function press(){ const d=S.d6;
+  if(!d.start){ d.simMsg='Der Bauplan hat noch keinen Startpfeil. Setze zuerst einen.'; render(); return; }
+  if(!d.sim) d.sim=d.start;
+  const a=d.arrows.find(x=>x.from===d.sim && isPress(x.label));
+  if(a){ const old=d.sim; d.sim=a.to; d.simMsg=`Pfeil gefunden: von „${old}“ nach „${a.to}“. Das Licht ist ${a.to==='an'?'an!':'aus.'}`; }
+  else d.simMsg=`Im Zustand „${d.sim}“ gibt es keinen Pfeil für „Schalter drücken“. Nichts passiert.`;
+  render();
+}
+function build(){ const st=qs('c1'); if(st.done) return; const bs=builderScore();
+  if(bs.sc===6 && st.tries===0){ st.done=true; st.correct=true; st.earned=6; S.justOk='c1'; }
+  else if(st.tries===0){ st.tries=1; S.second++; }
+  else { st.done=true; st.correct=bs.sc===6; st.earned=Math.min(bs.sc,3); if(st.correct) S.justOk='c1'; }
+  S.d6.tool=''; S.d6.from=''; S.d6.to=''; render();
+}
+
+app.addEventListener('click', e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return; const a=el.dataset.act, qid=el.dataset.q;
+  switch(a){
+    case 'start': S.name=document.getElementById('name').value.trim(); go('d1'); break;
+    case 'next': go(ORDER[ORDER.indexOf(S.screen)+1]); break;
+    case 'restart': store.del(KEY); SAVED=null; location.reload(); break;
+    case 'resume': { const d=SAVED; SAVED=null; Object.assign(S, d); go(S.screen); break; }
+    case 'discard': store.del(KEY); SAVED=null; render(); break;
+    case 'teacher': teacher={code:'',ok:false,wrong:false,confirmDel:false}; go('results'); setTimeout(()=>document.getElementById('tcode')?.focus(),0); break;
+    case 'tcheck': { const v=(document.getElementById('tcode')?.value||'').trim(); teacher.ok = v===TEACHER_CODE; teacher.wrong=!teacher.ok; render(); break; }
+    case 'tdel': teacher.confirmDel=true; render(); break;
+    case 'tdelno': teacher.confirmDel=false; render(); break;
+    case 'tdelyes': store.del(RKEY); teacher.confirmDel=false; render(); break;
+    case 'home': teacher.ok=false; go('intro'); break;
+    case 'check': check(qid); break;
+    case 'pick': qs(qid).val=+el.dataset.i; render(); break;
+    case 'hint': { const st=qs(qid); if(!st.hint){ st.hint=true; S.hints++; } render(); break; }
+    case 'chip': { const st=qs(qid), t=el.dataset.t;
+      if(Q[qid].type==='gap'){ let k=S.lastGap[qid]; if(k==null){ k=Q[qid].gaps.findIndex((g,i)=>!String(st.val[i]||'').trim()); if(k<0) k=0; }
+        st.val[k]=t; const nk=Q[qid].gaps.findIndex((g,i)=>!String(st.val[i]||'').trim()); S.lastGap[qid]= nk<0?k:nk; }
+      else st.val=t; render(); break; }
+    case 'jump': { const d=S.d1, to=P[d.at][el.dataset.g]; d.log.push({from:d.at, gate:el.dataset.g, to}); d.at=to; if(to==='ZETA') d.found=true; render(); break; }
+    case 'blubb': blubb(el.dataset.in); break;
+    case 'coin': coin(el.dataset.c); break;
+    case 'tool': S.d6.tool = S.d6.tool===el.dataset.t ? '' : el.dataset.t; S.d6.from=''; S.d6.to=''; render(); break;
+    case 'clear': Object.assign(S.d6,{start:'',arrows:[],tool:'',from:'',to:'',sim:'',simMsg:''}); render(); break;
+    case 'node': nodeClick(el.dataset.n); break;
+    case 'savearrow': saveArrow(); break;
+    case 'cancelarrow': Object.assign(S.d6,{tool:'',from:'',to:'',label:''}); render(); break;
+    case 'delarrow': S.d6.arrows.splice(+el.dataset.i,1); S.d6.sim=''; S.d6.simMsg=''; render(); break;
+    case 'press': press(); break;
+    case 'simreset': S.d6.sim=''; S.d6.simMsg='Neu gestartet. Der Schalter ist wieder im Startzustand.'; render(); break;
+    case 'build': build(); break;
+  }
+});
+app.addEventListener('input', e=>{ const t=e.target, qid=t.dataset.q;
+  if(t.id==='arrowlabel'){ S.d6.label=t.value; return; }
+  if(t.id==='name'){ S.name=t.value; return; }
+  if(!qid) return; const st=qs(qid);
+  if(t.dataset.k!=null) st.val[+t.dataset.k]=t.value; else st.val=t.value; });
+app.addEventListener('focusin', e=>{ const t=e.target; if(t.dataset?.k!=null) S.lastGap[t.dataset.q]=+t.dataset.k; });
+app.addEventListener('keydown', e=>{ const t=e.target;
+  if(e.key==='Enter'){ if(t.id==='name'){ S.name=t.value.trim(); go('d1'); }
+    else if(t.id==='tcode'){ app.querySelector('[data-act="tcheck"]')?.click(); }
+    else if(t.id==='arrowlabel') saveArrow();
+    else if(t.dataset?.q) check(t.dataset.q); }
+  if((e.key==='Enter'||e.key===' ') && t.dataset?.act==='node'){ e.preventDefault(); nodeClick(t.dataset.n); } });
+bar.addEventListener('click', e=>{ if(!e.target.closest('[data-act="speak"]')) return;
+  try{ speechSynthesis.cancel(); const txt=[...app.querySelectorAll('[data-read], .bubble span')].map(n=>n.textContent.trim()).filter(Boolean).join(' ');
+    const u=new SpeechSynthesisUtterance(txt); u.lang='de-DE'; u.rate=.9; speechSynthesis.speak(u); }catch(err){} });
+
+window.claude?.hot?.snapshot?.(()=>JSON.parse(JSON.stringify(S)));
+function start(data){ if(data && data.screen) Object.assign(S,data); else if(SAVED && SAVED.screen==='end'){ Object.assign(S,SAVED); SAVED=null; } renderBar(); setDeckColor(); app.innerHTML=VIEWS[S.screen](); }
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+
+</body></html>
